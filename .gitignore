@@ -1,0 +1,39 @@
+# Unity project folders (a host project may nest this package for development)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]in/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Unity regenerates these on import; GUIDs are not pinned by this repo.
+*.meta
+
+# IDE — Unity regenerates these at the project root; the ones under Tests~ are ours and are tracked.
+.idea/
+.vs/
+.vscode/
+/*.csproj
+/*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Crash reports
+sysinfo.txt
+crashlytics-build.properties
+

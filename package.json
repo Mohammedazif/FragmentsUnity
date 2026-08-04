@@ -1,0 +1,30 @@
+{
+  "name": "com.fragmentsunity.importer",
+  "displayName": "Fragments for Unity",
+  "version": "0.1.0",
+  "unity": "2021.3",
+  "description": "Native importer for ThatOpen Fragments 2.0 (.frag) BIM files with complete IFC metadata: GlobalIds, property sets, quantity sets, materials with layer thicknesses, classifications, and the Project > Site > Building > Storey > Element spatial hierarchy.",
+  "keywords": [
+    "bim",
+    "ifc",
+    "fragments",
+    "thatopen",
+    "importer"
+  ],
+  "author": {
+    "name": "Mohammed Azif"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.modules.physics": "1.0.0",
+    "com.unity.modules.imgui": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Basic Import",
+      "description": "Import a .frag file, click an element to log its GlobalId, category and storey, and filter the model by level and category.",
+      "path": "Samples~/BasicImport"
+    }
+  ]
+}
