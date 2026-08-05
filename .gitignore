@@ -1,4 +1,4 @@
-# Unity project folders (a host project may nest this package for development)
+# Unity project folders
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -10,10 +10,7 @@
 [Mm]emoryCaptures/
 [Rr]ecordings/
 
-# Unity regenerates these on import; GUIDs are not pinned by this repo.
-*.meta
-
-# IDE — Unity regenerates these at the project root; the ones under Tests~ are ours and are tracked.
+# IDE
 .idea/
 .vs/
 .vscode/
@@ -37,4 +34,11 @@ Desktop.ini
 sysinfo.txt
 crashlytics-build.properties
 
+# Local development rules
 CLAUDE.md
+CLAUDE.md.meta
+
+# Test suites
+Tests/
+Tests.meta
+Tests~/

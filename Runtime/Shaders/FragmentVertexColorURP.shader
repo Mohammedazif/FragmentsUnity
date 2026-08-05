@@ -13,6 +13,11 @@ Shader "FragmentsUnity/URP/VertexColor"
 
     SubShader
     {
+        PackageRequirements
+        {
+            "com.unity.render-pipelines.universal"
+        }
+
         Tags
         {
             "RenderPipeline" = "UniversalPipeline"
@@ -238,6 +243,4 @@ Shader "FragmentsUnity/URP/VertexColor"
             ENDHLSL
         }
     }
-
-    FallBack "Hidden/Universal Render Pipeline/FallbackError"
 }
