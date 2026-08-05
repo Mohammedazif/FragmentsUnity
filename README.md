@@ -1,65 +1,102 @@
 # Fragments for Unity
 
-A pure-C# Unity package that natively imports ThatOpen Fragments 2.0 (`.frag`)
-BIM files with complete IFC metadata: GlobalIds, property sets, quantity sets,
-materials with layer thicknesses, classifications, and the
-Project → Site → Building → Storey → Element spatial hierarchy.
+A Unity package that imports ThatOpen Fragments 2.0 (`.frag`) BIM files as
+native Unity assets, with geometry, materials and complete IFC metadata. Pure
+C# — no native plugin, no external process.
 
-Drag a `.frag` file into the Project window and it imports like any native
-asset. Models arrive with original IFC colors, correct meter-scale orientation,
-and per-element metadata queryable from C#.
+<!-- SCREENSHOT PLACEHOLDER: an imported model in the Scene view with an element
+     selected, showing its IFC record in the Inspector. Replace this comment
+     with: ![An imported model with an element selected](Documentation~/images/overview.png) -->
 
-## What you get
+## Install
+
+*Window > Package Manager > + > Add package from git URL*:
+
+```
+https://github.com/Mohammedazif/FragmentsUnity.git
+```
+
+Or *Add package from disk* and select this package's `package.json`.
+
+Install it as a package, under `Packages/`. Copying the folder into `Assets/` is
+not supported — the importer resolves its shader by package path and will fall
+back to an all-white model.
+
+## Requirements
+
+| | |
+|---|---|
+| Unity | Run on 6.2 (6000.2) and 6.5 (6000.5). The manifest declares a floor of 2021.3, which is untested — see [Verification status](#verification-status). |
+| Render pipeline | Built-in RP or URP. No HDRP shader ships. |
+| API Compatibility Level | .NET Standard 2.1 |
+| Dependencies | `com.unity.nuget.newtonsoft-json` 3.2.1, resolved automatically |
+
+## Quick start
+
+1. Drag a `.frag` file into the Project window. It imports like any native
+   asset — meshes, materials and metadata become sub-assets.
+2. Drag the imported asset into a scene. It arrives at the origin, at metre
+   scale, in its original IFC colours.
+3. Click an element. The Inspector shows its full IFC record: class, name,
+   GlobalId, type, storey, attributes, property sets and materials.
+
+## Features
 
 - **Five import modes** — hierarchy per body, per element, per storey,
   instanced, or one merged model — trading object count against draw calls and
   selection granularity.
-- **Element picking**: one `Physics.Raycast` plus `FragmentPicker` returns the
+- **Full IFC metadata** — GlobalIds, property and quantity sets including
+  type-inherited ones, materials with layer thicknesses, classifications, and
+  the Project → Site → Building → Storey → Element spatial hierarchy.
+- **Element picking** — one `Physics.Raycast` plus `FragmentPicker` returns the
   IFC record behind the hit, resolving the exact element even inside merged
   meshes.
-- **Filtering** by category, storey, attribute value, or explicit element ids.
+- **Filtering** by category, storey, attribute value, or explicit element ids,
+  from code or from a dockable editor window.
 - **A query API** on the model root: `FindByGlobalId`, `FindByCategory`,
-  `FindByStorey`, `FindByAttribute`, `GetFlattenedValues`.
-- **Editor tooling**: metadata inspectors for the model and its elements, a
-  dockable filter window, and a command that extracts meshes and materials into
-  standalone assets.
+  `FindByStorey`, `FindByAttribute`, `GetFlattenedValues`, and more.
+- **Asset extraction** — a command that promotes the importer's read-only mesh
+  and material sub-assets into standalone, editable project assets.
 
-## Getting started
+## Documentation
 
-Install it as a UPM package — *Window > Package Manager > + > Add package from
-disk* — so it mounts under `Packages/`, then drag a `.frag` file into the
-Project window.
+- [Documentation~/index.md](Documentation~/index.md) — the manual: installation,
+  every importer setting, editor tooling, and the limitations list.
+- [Documentation~/ImportModes.md](Documentation~/ImportModes.md) — what each
+  mode costs and what it gives up.
+- [Documentation~/Picking.md](Documentation~/Picking.md) — raycasting to
+  elements, and the collider layer an imported model needs.
+- [Documentation~/ScriptingApi.md](Documentation~/ScriptingApi.md) — the full
+  C# surface.
+- [Samples~/BasicImport](Samples~/BasicImport) — click an element and log its
+  IFC record. Import it from *Window > Package Manager > Fragments for Unity >
+  Samples*.
 
-**[Documentation~/index.md](Documentation~/index.md) is the manual**:
-installation, importer settings, the query API, editor tooling, and an honest
-list of what this package does not do. [ImportModes.md](Documentation~/ImportModes.md)
-and [Picking.md](Documentation~/Picking.md) go deeper on the two decisions that
-matter most.
+## Verification status
 
-Requires Unity 2021.3 or newer with the Built-in Render Pipeline or URP.
+Version 0.1.0 — see [CHANGELOG.md](CHANGELOG.md).
 
-## Status
+**Confirmed** in Unity 6.2 (6000.2.10f1) and 6.5 (6000.5.6f1) on Windows, DX11:
+`.frag` import through the ScriptedImporter, with the editor console reporting
+counts that match the offline parser exactly; shader compilation and rendering in
+original IFC colours; several models and several instances of one model in one
+scene; the `FragmentModel`, `FragmentFilter` and `FragmentVisibilityIndex`
+components populated on the model root; the model and element inspectors,
+including Global Id search and the copy button; and importing the Basic Import
+sample from the Package Manager.
 
-Version 0.1.0 — see [CHANGELOG.md](CHANGELOG.md). This is a pre-release, and the
-honest summary is short:
+**Not yet confirmed:** the declared Unity 2021.3 floor; which render pipeline was
+active in those sessions, so neither shader is individually confirmed; the merged
+import modes and the merged-chunk inspector; the filter window; the
+asset-extraction command; and play-mode picking.
 
-- **The parser and the scene-building logic are validated.** 444 automated tests
-  run under a plain .NET SDK, including regression pins over all three
-  development models. Where FragmentsUE left a usable reference — its own run
-  logs — the parsed counts match it exactly; `Phase1Validation.md` explains
-  which of those logs is stale and why one of them cannot be used.
-- **Nothing in this package has ever been run inside a Unity editor.** Not once.
-  The two shaders have never been compiled; the importer has never imported
-  anything; the inspectors, the filter window and the asset-extraction command
-  have never been drawn or clicked. The Unity layer is compiled against
-  hand-written stubs of the Unity API, which prove it builds and that its own
-  contracts hold — not that the engine behaves the way the stubs assume.
+The parser core is covered by 89 automated tests that run under a plain .NET SDK
+against real models, all passing. See
+[Documentation~/index.md](Documentation~/index.md#tests) for how to run the
+suite, and its [Limitations](Documentation~/index.md#limitations) section for
+what the package does not do.
 
-The `Phase1Validation.md` … `Phase4Validation.md` records in `Documentation~/`
-list, phase by phase, exactly what was measured and what is still waiting on a
-real editor. Read them before you trust a number.
+## Licence
 
-## License
-
-MIT — see [LICENSE](LICENSE). Third-party notices (Earcut ISC, FlatBuffers
-Apache 2.0) are in [ThirdParty/LICENSES.md](ThirdParty/LICENSES.md).
+MIT — see [LICENSE.md](LICENSE.md). Third-party notices (Earcut ISC, FlatBuffers
+Apache 2.0) are in [Third Party Notices.md](Third%20Party%20Notices.md).

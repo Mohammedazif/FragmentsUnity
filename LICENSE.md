@@ -22,4 +22,4 @@ SOFTWARE.
 
 Third-party components ship under their own permissive licences (ISC for the
 Earcut triangulator port, Apache 2.0 for FlatBuffers). See
-ThirdParty/LICENSES.md for the full notices.
+"Third Party Notices.md" for the full notices.

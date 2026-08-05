@@ -74,16 +74,16 @@ stops character controllers, it is hit by every unrelated raycast and overlap
 query in your project, and it bakes into the NavMesh. That is almost never what
 a BIM viewer wants.
 
-FragmentsUE avoids this by giving every fragment component a query-only
-collision profile that ignores all channels and blocks only the picking channel
-(`FragmentsActor.cpp:91-122`). Unity 2021.3 has no per-collider channel
-filtering, so the equivalent is a **layer** the project excludes from movement
-and from unrelated queries:
+Unity has no per-collider channel filtering, so the way to keep an imported
+model pickable without making it an obstacle is a **layer** the project excludes
+from movement and from unrelated queries:
 
-1. *Project Settings > Tags and Layers* — add a layer, for example `Fragments`.
-2. Select the `.frag` asset and set **Collider Layer** to it, then Apply. Every
-   object that receives a collider is moved onto that layer; objects without a
-   collider — the model root and the hierarchy nodes — are left alone.
+1. *Project Settings > Tags and Layers* — add a layer, for example `Fragments`,
+   and note the index it was given.
+2. Select the `.frag` asset and enter that index in **Collider Layer**, then
+   Apply. The field is a plain integer, not a layer dropdown. Every object that
+   receives a collider is moved onto that layer; objects without a collider —
+   the model root and the hierarchy nodes — are left alone.
 3. *Project Settings > Physics* — clear the whole row and column for that layer
    in the collision matrix, so nothing collides with the building.
 4. Pass the layer explicitly when you want to hit it:
@@ -105,14 +105,11 @@ Unity has no unused layer a package can safely claim.
 
 ## Merged meshes resolve natively
 
-In the merged import modes (Hierarchy per Element, per Storey, Merged Whole
-Model) many elements share one welded mesh. Unity's `MeshCollider` reports
-`hit.triangleIndex`, so the chunk's triangle-start table is binary-searched and
-the exact element falls out. The Unreal plugin cannot do this: it encodes a part
-index into UV0, needs the project's *Support UV From Hit Results* physics
-setting, and still has to fall back to a UV decode when the vertex-cache
-optimizer permutes triangles. None of that is ported, and none of it is needed
-(UNITY_PORT.md section 6).
+In the merged import modes — Hierarchy Per Element, Hierarchy Per Storey and
+Merged Whole Model — many elements share one welded mesh. Unity's `MeshCollider`
+reports `hit.triangleIndex`, so the chunk's triangle-start table is
+binary-searched and the exact element falls out. No project-wide physics setting
+and no UV encoding is involved.
 
 The practical consequence is that `hit.collider.gameObject` is **not** the
 element in merged modes — it is a chunk shared by many elements. Always go
@@ -130,10 +127,9 @@ restores both.
 
 Spatial volumes are invisible but solid. `IfcSpace`, `IfcSite`, `IfcBuilding`,
 `IfcOpeningElement` and `IfcAnnotation` import with their renderer disabled and
-their collider intact, matching FragmentsUE. A ray can therefore stop on a room
-volume you cannot see. If that is unwanted, check `item.Category` after the pick
-and re-cast, or use `Physics.RaycastAll` and take the first hit whose category
-you accept.
+their collider intact. A ray can therefore stop on a room volume you cannot see.
+If that is unwanted, check `item.Category` after the pick and re-cast, or use
+`Physics.RaycastAll` and take the first hit whose category you accept.
 
 ## From a pick to a filter
 
@@ -149,6 +145,7 @@ if (FragmentPicker.TryGetLocalId(hit, out int localId))
 ```
 
 In the merged modes this isolates the element's whole chunk rather than the
-element alone, and logs a warning saying so — see `ImportModes.md` for which
-modes hide precisely. `SetVisibleLocalIds(ids, visible)` is the toggle form of
-the same primitive, for building up a selection instead of replacing it.
+element alone, and logs a warning saying so — see [ImportModes.md](ImportModes.md)
+for which modes hide precisely. `SetVisibleLocalIds(ids, visible)` is the toggle
+form of the same primitive, for building up a selection instead of replacing it.
+[ScriptingApi.md](ScriptingApi.md) lists the rest of the surface.

@@ -13,14 +13,23 @@ three steps.
 ## Set up the scene
 
 1. **Bring in a model.** Drag any Fragments 2.0 `.frag` file into the Project
-   window. Anything exported by ThatOpen's `@thatopen/fragments` tooling works;
-   the models this package was developed against are `AR520.frag`,
-   `Joyson Model.frag` and `20210219Architecture.frag`. Leave the importer
-   settings alone for now: the defaults are *Hierarchy — per Element* with
-   metadata and element picking on, which is what this sample needs.
+   window. Anything exported by ThatOpen's `@thatopen/fragments` tooling works,
+   including a file you convert from IFC yourself with their `IfcImporter`.
+
+   If you have no model to hand, ThatOpen publish two:
+
+   - [school_arq.frag](https://thatopen.github.io/engine_fragment/resources/frags/school_arq.frag)
+     — architectural, 3.4 MB
+   - [school_str.frag](https://thatopen.github.io/engine_fragment/resources/frags/school_str.frag)
+     — structural, the matching model
+
+   Leave the importer settings alone for now: the defaults are **Hierarchy Per
+   Body** with metadata and element picking on, which is what this sample needs.
+
 2. **Drop it in a scene.** Drag the imported asset from the Project window into
    an empty scene. It arrives at the origin, at metre scale, in its original IFC
    colours. Frame it with **F** so the camera is looking at the building.
+
 3. **Add the script.** Create an empty GameObject, add `ClickToInspect` to it,
    and press Play. Leave **Camera** empty to use the scene's main camera, or
    assign one explicitly.
@@ -29,8 +38,15 @@ three steps.
 
 The model root is a GameObject carrying `FragmentModel`, `FragmentFilter` and
 `FragmentVisibilityIndex`. Under it is the spatial tree the `.frag` describes —
-project, site, building, storey, then one GameObject per IFC element, each with
-a `FragmentElementReference` recording which element it draws.
+project, site, building, storey, and then the geometry.
+
+In the default **Hierarchy Per Body** mode there is one GameObject per body, so
+an element modelled as several separate solids appears as several objects with
+`_body1`, `_body2`, … suffixes; an element with a single body keeps its plain
+name. Each carries a `FragmentElementReference` recording which IFC element it
+draws, so selecting any of them shows that element's record. Switch **Import
+Mode** to *Hierarchy Per Element* and each element collapses to one place in the
+tree instead — see `Documentation~/ImportModes.md`.
 
 Select the model root and the Inspector shows the model's name, guid and item,
 category and storey counts, plus a **Find Global Id** box. Select any element
@@ -43,14 +59,14 @@ clipboard.
 Press Play and click the building. Every click logs one line:
 
 ```
-IFCWALLSTANDARDCASE 'Basic Wall:N-EXT-LB-43-SO-3 5/8" EXT Finishes:3856213' | GlobalId 1zzhLY2$PAnwlHvBOzeJsG | storey Level 1
+IFCWALLSTANDARDCASE 'Muro básico:Exterior - Insulation on Masonry:139854' | GlobalId 1fIVuvFffDJRV_SJESOtDs | storey 01 - Entry Level
 ```
 
-`ClickToInspect` does nothing fragment-specific except the one call in the
-middle: raycast, then `FragmentPicker.TryGetMetadata(hit, out item)`. The
-element it resolves is correct in every import mode, including the merged ones
-where many elements share a single mesh — so never read the hit GameObject and
-assume it is the element.
+That is a real record from `school_arq.frag`. `ClickToInspect` does nothing
+fragment-specific except the one call in the middle: raycast, then
+`FragmentPicker.TryGetMetadata(hit, out item)`. The element it resolves is
+correct in every import mode, including the merged ones where many elements share
+a single mesh — so never read the hit GameObject and assume it is the element.
 
 Three things that look like bugs and are not:
 
@@ -62,13 +78,13 @@ Three things that look like bugs and are not:
   which case the click resolves an element but there is no IFC record to print.
 - **You clicked empty air and got a room.** Invisible spatial volumes —
   `IfcSpace`, `IfcSite`, `IfcBuilding`, `IfcOpeningElement`, `IfcAnnotation` —
-  import with their renderer disabled but their collider intact, matching
-  FragmentsUE. They are picked like anything else, so the ray stops on the room
-  volume in front of the wall you were aiming at and the sample logs the volume's
-  IFC data: `IFCSPACE 'Office 204' | GlobalId … | storey Level 1`. Nothing has
-  gone wrong; you hit a real element that simply does not draw. If you want
-  clicks to pass through them, check `item.Category` after the pick and re-cast,
-  or use `Physics.RaycastAll` and take the first hit whose category you accept —
+  import with their renderer disabled but their collider intact. They are picked
+  like anything else, so the ray stops on the room volume in front of the wall
+  you were aiming at and the sample logs the volume's IFC data:
+  `IFCSPACE 'Office 204' | GlobalId … | storey Level 1`. Nothing has gone wrong;
+  you hit a real element that simply does not draw. If you want clicks to pass
+  through them, check `item.Category` after the pick and re-cast, or use
+  `Physics.RaycastAll` and take the first hit whose category you accept —
   `Documentation~/Picking.md` shows both.
 
 The sample uses the legacy `Input` class. In a project set to the Input System
@@ -91,7 +107,7 @@ The same operations from code, on the model root's `FragmentFilter`:
 
 ```csharp
 var filter = model.GetComponent<FragmentFilter>();
-filter.IsolateByStorey("Level 1");
+filter.IsolateByStorey("01 - Entry Level");
 filter.SetCategoryVisible("IFCWALL", false);
 filter.ClearFilter();
 ```
@@ -99,12 +115,22 @@ filter.ClearFilter();
 Filtering hides colliders along with renderers, so a filtered-out element is not
 pickable — which is why an isolate lets you click straight through to the floor
 behind. If a filter hides more than you asked for, the model was imported in a
-merged mode where one mesh holds many elements; `Documentation~/ImportModes.md`
-explains which modes hide precisely.
+merged mode where one mesh holds many elements;
+`Documentation~/ImportModes.md` explains which modes hide precisely.
+
+## A note on rebar
+
+`school_str.frag` logs one info line on import:
+`619 circle-extrusion (rebar) representation(s) skipped - not implemented`.
+That is expected — circular extrusions are not imported, and the count is
+reported so you know what is missing. See the Limitations section of
+`Documentation~/index.md`.
 
 ## Next
 
-- `Documentation~/index.md` — the manual: importer settings, the query API, and
+- `Documentation~/index.md` — the manual: importer settings, editor tooling, and
   the package's limitations.
+- `Documentation~/ScriptingApi.md` — the full C# surface: queries, picking and
+  filtering.
 - `Documentation~/Picking.md` — why an imported model is solid to physics by
   default, and the collider layer that fixes it.

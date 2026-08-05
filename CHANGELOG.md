@@ -8,15 +8,25 @@ and this package adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-08-04
 
 Initial pre-release: a pure-C# importer for ThatOpen Fragments 2.0 (`.frag`) BIM
-files, ported from the FragmentsUE plugin.
+files.
 
-**This release has never been run in a Unity editor.** Everything listed below is
-implemented and covered by 444 automated tests, but those tests run under a plain
-.NET SDK against hand-written stubs of the Unity API. No shader here has been
-compiled by Unity; the importer has never imported anything inside the editor;
-the editor windows and inspectors have never been drawn. The version number
-reflects that. `Documentation~/index.md` carries the full limitations list and
-the `Phase*Validation.md` records say what each phase actually measured.
+**Verification.** This release has been run in Unity 6.2 (6000.2.10f1) and 6.5
+(6000.5.6f1) on Windows, DX11. Confirmed there: `.frag` import through the
+ScriptedImporter, with the editor console reporting geometry, instance, vertex
+and triangle counts matching the offline parser exactly; shader compilation and
+rendering in original IFC colours; several models and several instances of one
+model in a single scene; `FragmentModel`, `FragmentFilter` and
+`FragmentVisibilityIndex` populated on the model root; the model root inspector
+including Global Id search; the element inspector drawing a complete IFC record
+with its copy button; and importing the Basic Import sample from the Package
+Manager.
+
+Not yet confirmed: the declared Unity 2021.3 floor, which render pipeline was
+active in those sessions, the merged import modes and the merged-chunk
+inspector, the filter window, the asset-extraction command, and play-mode
+picking. The parser core is covered by 89 automated tests run under a plain .NET
+SDK against real models, all passing. `Documentation~/index.md` carries the full
+verification status and limitations list.
 
 ### Added
 
@@ -39,7 +49,7 @@ the `Phase*Validation.md` records say what each phase actually measured.
 - **Spatial hierarchy** — Project → Site → Building → Storey → Element — with
   storey resolution through containing ancestors, anonymous-group flattening,
   and orphan instances kept under the model root rather than dropped.
-- **Five import modes**: hierarchy per body, per element (default), per storey,
+- **Five import modes**: hierarchy per body (default), per element, per storey,
   instanced, and merged whole model, with merge buckets by category and colour
   and chunk splitting at the vertex and index ceilings.
 - **Element picking**: `FragmentPicker` resolves a `RaycastHit` back to the
@@ -60,17 +70,15 @@ the `Phase*Validation.md` records say what each phase actually measured.
   editable assets.
 - **Vertex-colour shaders** for the Built-in Render Pipeline and URP, selected
   by the active pipeline, with switchable culling and alpha blending. Surfaces
-  are sorted into opaque, translucent and glass by the hue-and-opacity heuristic
-  FragmentsUE uses, and single- or double-sided by the file's `RenderedFaces`
-  flag — at most six materials for a model of any size.
+  are sorted into opaque, translucent and glass by a hue-and-opacity heuristic,
+  and single- or double-sided by the file's `RenderedFaces` flag — at most six
+  materials for a model of any size.
 - **Hardening** against corrupt or hostile files: every table, string and
   allocation is budgeted through `FragmentImportLimits`, and a failed parse
   reports an import error instead of taking the editor down.
 
 ### Known limitations
 
-- Nothing in the package has been executed in a Unity editor; the shaders have
-  never been compiled and the importer has never run.
 - No `.meta` files are committed, so asset GUIDs differ between machines until
   the package is opened in Unity once and they are committed.
 - `CircleExtrusion` geometry (rebar and similar) is skipped; the count is
@@ -82,7 +90,13 @@ the `Phase*Validation.md` records say what each phase actually measured.
 - A `.frag` with no spatial tree is built flat whichever hierarchy mode is
   selected, and no log line reports the fallback.
 - No HDRP shader variant. An HDRP project is handed the URP shader.
+- The URP shader is compiled even in a Built-in-only project, where its URP
+  include path may not resolve.
+- On URP 14–16 the Forward+ renderer loses point and spot lights on imported
+  geometry; Unity 6's URP 17 is unaffected.
+- Switching render pipeline after import does not trigger a re-import, so models
+  silently keep the materials they were built with.
 - The redistribution terms of ThatOpen's `index.fbs` schema are unresolved; see
-  `ThirdParty/LICENSES.md`.
+  `Third Party Notices.md`.
 
 See `Documentation~/index.md` for the detail behind each limitation.

@@ -15,6 +15,9 @@
     "name": "Mohammed Azif"
   },
   "license": "MIT",
+  "documentationUrl": "https://github.com/Mohammedazif/FragmentsUnity/blob/main/Documentation~/index.md",
+  "changelogUrl": "https://github.com/Mohammedazif/FragmentsUnity/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/Mohammedazif/FragmentsUnity/blob/main/LICENSE.md",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.modules.physics": "1.0.0",
