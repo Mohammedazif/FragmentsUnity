@@ -52,26 +52,6 @@ see.
 | Instanced | one per body, no tree | batched by GPU instancing | the body | exact, per element |
 | Merged Whole Model | a handful for the model | a handful | a model-wide chunk | chunk granular: a category/colour/surface bucket spanning the model |
 
-## Measured build shapes
-
-The numbers below were measured offline against three real IFC models used
-during development. Those files are not distributed with the package, so they
-are identified here by size rather than by name. Treat them as illustrative of
-the shape each mode produces, not as a prediction for your model.
-
-The small model — 1,113 geometry-bearing elements — imported with picking
-enabled:
-
-| Mode | Objects | Hierarchy nodes | Merged chunks | Meshes | Materials |
-|---|---|---|---|---|---|
-| Hierarchy Per Body | 2,297 | 1,138 | 0 | 128 | 2 |
-| Hierarchy Per Element | 43 | 21 | 21 | 21 | 2 |
-| Hierarchy Per Storey | 14 | 7 | 6 | 6 | 2 |
-| Instanced | 1,159 | 0 | 0 | 128 | 2 |
-| Merged Whole Model | 7 | 0 | 6 | 6 | 2 |
-
-The spread from 2,297 objects to 7 is the whole point of the setting.
-
 ## Object count and draw calls
 
 Every drawable object carries one `MeshRenderer`, so the object count is
@@ -94,18 +74,13 @@ Two things decide which of the six an object gets:
   one body at a time, and is forced on for every merged chunk — a welded chunk
   mixes bodies from many instances, so it is always double-sided.
 
-Six is the ceiling, not the norm. Across the three development models:
-
-| Model | Per Body | Per Element | Per Storey | Instanced | Merged |
-|---|---|---|---|---|---|
-| Small (1.1k elements) | 2 | 2 | 2 | 2 | 2 |
-| Medium (2.0k elements) | 3 | 4 | 3 | 3 | 3 |
-| Large (15.2k elements) | 3 | 4 | 3 | 3 | 3 |
-
-None of the three declares a two-sided face flag, so their single-sided variants
-only ever appear on unmerged bodies. Per Element reaches four on the two larger
-models because elements missing from the spatial tree are spawned as individual,
-single-sided bodies beside merged, double-sided element chunks.
+Six is the ceiling, not the norm: a model reaches it only if it actually
+contains all three surface kinds in both sidedness variants. A file that
+declares no two-sided face flag anywhere gets double-sided materials only on its
+merged chunks. That is also why a hierarchy mode can carry both sidedness
+variants of one surface kind at once — elements missing from the spatial tree
+are spawned as individual bodies keeping their own flag, beside merged,
+always-double-sided chunks.
 
 Merging is not free. Welding bakes each body's vertices into world space, so
 geometry that dozens of instances used to share is duplicated per instance: the
@@ -172,18 +147,13 @@ An isolate in a chunk-granular mode therefore *under*-hides as well as
 over-hides: a chunk is kept whenever any one of its elements is wanted, so every
 other element welded into that chunk stays on screen.
 
-Measured on the medium model — 1,986 geometry-bearing elements — isolating a
-storey that holds 887 of them and leaves 1,099 outside it:
-
-| Mode | Out-of-storey elements still drawn |
-|---|---|
-| Hierarchy Per Body | 0 |
-| Instanced | 0 |
-| Hierarchy Per Element | 0 |
-| Hierarchy Per Storey | 1 |
-| Merged Whole Model | **385 of 1,099** |
-
-Nothing leaks in Per Body mode, where each object draws exactly one element.
+**This is a documented trade-off, not a defect.** It is the price of the reduced
+object and draw-call counts the merged modes exist to buy, which is why the
+importer warns at runtime rather than refusing the filter. The *Hide / isolate
+granularity* column in [At a glance](#at-a-glance) is the summary; Merged Whole
+Model is the coarsest of the five, because a single chunk can hold elements from
+every storey, so isolating one level can leave a substantial part of the rest of
+the model on screen.
 
 `FragmentVisibilityIndex.SupportsElementFiltering` reports whether the scene was
 built one-object-per-element (Per Body, Per Element, Instanced) or in chunks

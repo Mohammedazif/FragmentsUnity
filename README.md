@@ -4,10 +4,6 @@ A Unity package that imports ThatOpen Fragments 2.0 (`.frag`) BIM files as
 native Unity assets, with geometry, materials and complete IFC metadata. Pure
 C# — no native plugin, no external process.
 
-<!-- SCREENSHOT PLACEHOLDER: an imported model in the Scene view with an element
-     selected, showing its IFC record in the Inspector. Replace this comment
-     with: ![An imported model with an element selected](Documentation~/images/overview.png) -->
-
 ## Install
 
 *Window > Package Manager > + > Add package from git URL*:
@@ -19,15 +15,15 @@ https://github.com/Mohammedazif/FragmentsUnity.git
 Or *Add package from disk* and select this package's `package.json`.
 
 Install it as a package, under `Packages/`. Copying the folder into `Assets/` is
-not supported — the importer resolves its shader by package path and will fall
-back to an all-white model.
+not supported — the importer resolves its shader by package path, and under
+`Assets/` that lookup fails and models can import all-white.
 
 ## Requirements
 
-| | |
+| Requirement | Detail |
 |---|---|
-| Unity | Run on 6.2 (6000.2) and 6.5 (6000.5). The manifest declares a floor of 2021.3, which is untested — see [Verification status](#verification-status). |
-| Render pipeline | Built-in RP or URP. No HDRP shader ships. |
+| Unity | 2021.3 or newer. Verified on 2021.3, 6.2 (6000.2) and 6.5 (6000.5). |
+| Render pipeline | Built-in Render Pipeline or URP. |
 | API Compatibility Level | .NET Standard 2.1 |
 | Dependencies | `com.unity.nuget.newtonsoft-json` 3.2.1, resolved automatically |
 
@@ -69,34 +65,43 @@ back to an all-white model.
 - [Documentation~/ScriptingApi.md](Documentation~/ScriptingApi.md) — the full
   C# surface.
 - [Samples~/BasicImport](Samples~/BasicImport) — click an element and log its
-  IFC record. Import it from *Window > Package Manager > Fragments for Unity >
-  Samples*.
+  category, name, GlobalId and storey. Import it from
+  *Window > Package Manager > Fragments for Unity > Samples*.
 
 ## Verification status
 
 Version 0.1.0 — see [CHANGELOG.md](CHANGELOG.md).
 
-**Confirmed** in Unity 6.2 (6000.2.10f1) and 6.5 (6000.5.6f1) on Windows, DX11:
-`.frag` import through the ScriptedImporter, with the editor console reporting
-counts that match the offline parser exactly; shader compilation and rendering in
-original IFC colours; several models and several instances of one model in one
-scene; the `FragmentModel`, `FragmentFilter` and `FragmentVisibilityIndex`
-components populated on the model root; the model and element inspectors,
-including Global Id search and the copy button; and importing the Basic Import
-sample from the Package Manager.
+Verified on Windows, DX11, in Unity **2021.3**, **6.2 (6000.2)** and
+**6.5 (6000.5)**:
 
-**Not yet confirmed:** the declared Unity 2021.3 floor; which render pipeline was
-active in those sessions, so neither shader is individually confirmed; the merged
-import modes and the merged-chunk inspector; the filter window; the
-asset-extraction command; and play-mode picking.
+- Both render pipelines — URP, and the Built-in Render Pipeline on 2021.3 in a
+  project with no URP package installed.
+- The declared 2021.3 floor.
+- Installing from a git URL, and from disk.
+- All five import modes, producing the hierarchy shapes
+  [ImportModes.md](Documentation~/ImportModes.md) describes.
+- A Windows player build — models render standalone, outside the editor.
+- All three inspectors: model root, element, and merged chunk.
+- The filter window and the full `FragmentFilter` API.
+- Asset extraction.
+- Play-mode picking, in per-body mode and in the merged modes, where the element
+  is resolved from the triangle table rather than the GameObject.
+- Every importer setting: Scale Factor, Import Metadata, Import Property Sets,
+  Import Mode, Enable Element Picking on and off, and Collider Layer.
+- Reimport — changing a setting rebuilds the asset and updates existing scene
+  instances.
+- Cancelling an import mid-build.
+- A large production model, in every mode.
 
-The parser core is covered by 89 automated tests that run under a plain .NET SDK
-against real models, all passing. See
-[Documentation~/index.md](Documentation~/index.md#tests) for how to run the
-suite, and its [Limitations](Documentation~/index.md#limitations) section for
-what the package does not do.
+The 250,000-object spawn ceiling was never reached during this verification, so
+that guard is unexercised.
+
+See the [Limitations](Documentation~/index.md#limitations) section of the manual
+for what the package does not do.
 
 ## Licence
 
 MIT — see [LICENSE.md](LICENSE.md). Third-party notices (Earcut ISC, FlatBuffers
-Apache 2.0) are in [Third Party Notices.md](Third%20Party%20Notices.md).
+Apache 2.0, Json.NET MIT) are in
+[Third Party Notices.md](Third%20Party%20Notices.md).

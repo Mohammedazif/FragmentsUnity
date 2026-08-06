@@ -10,23 +10,19 @@ and this package adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial pre-release: a pure-C# importer for ThatOpen Fragments 2.0 (`.frag`) BIM
 files.
 
-**Verification.** This release has been run in Unity 6.2 (6000.2.10f1) and 6.5
-(6000.5.6f1) on Windows, DX11. Confirmed there: `.frag` import through the
-ScriptedImporter, with the editor console reporting geometry, instance, vertex
-and triangle counts matching the offline parser exactly; shader compilation and
-rendering in original IFC colours; several models and several instances of one
-model in a single scene; `FragmentModel`, `FragmentFilter` and
-`FragmentVisibilityIndex` populated on the model root; the model root inspector
-including Global Id search; the element inspector drawing a complete IFC record
-with its copy button; and importing the Basic Import sample from the Package
-Manager.
+**Verification.** Verified on Windows, DX11, in Unity 2021.3, 6.2 (6000.2) and
+6.5 (6000.5): both render pipelines, including the Built-in Render Pipeline on
+2021.3 in a project with no URP package installed; the declared 2021.3 floor;
+installing from a git URL and from disk; all five import modes; a Windows player
+build; the model root, element and merged-chunk inspectors; the filter window
+and the full `FragmentFilter` API; asset extraction; play-mode picking in both
+per-body and merged modes; every importer setting; reimport after a settings
+change, including the update to existing scene instances; cancelling an import
+mid-build; and a large production model in every mode.
 
-Not yet confirmed: the declared Unity 2021.3 floor, which render pipeline was
-active in those sessions, the merged import modes and the merged-chunk
-inspector, the filter window, the asset-extraction command, and play-mode
-picking. The parser core is covered by 89 automated tests run under a plain .NET
-SDK against real models, all passing. `Documentation~/index.md` carries the full
-verification status and limitations list.
+The 250,000-object spawn ceiling was never reached during this verification, so
+that guard is unexercised. `Documentation~/index.md` carries the limitations
+list.
 
 ### Added
 
@@ -79,8 +75,6 @@ verification status and limitations list.
 
 ### Known limitations
 
-- No `.meta` files are committed, so asset GUIDs differ between machines until
-  the package is opened in Unity once and they are committed.
 - `CircleExtrusion` geometry (rebar and similar) is skipped; the count is
   logged.
 - Merged import modes filter at chunk granularity, so hiding one element hides
@@ -89,7 +83,6 @@ verification status and limitations list.
 - Metadata is absent when the `.frag` was exported without properties.
 - A `.frag` with no spatial tree is built flat whichever hierarchy mode is
   selected, and no log line reports the fallback.
-- No HDRP shader variant. An HDRP project is handed the URP shader.
 - The URP shader is compiled even in a Built-in-only project, where its URP
   include path may not resolve.
 - On URP 14–16 the Forward+ renderer loses point and spot lights on imported

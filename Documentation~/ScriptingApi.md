@@ -55,8 +55,9 @@ attribute at all, whatever its value. With `exactMatch: false` it matches on
 substring. Both name and value compare case-insensitively.
 
 `GetFlattenedValues` merges an element's attributes, property sets, materials,
-classifications and placement into one dictionary — the fastest way to dump
-everything known about an element. Keys are namespaced so they cannot collide:
+classifications, type and containment into one dictionary — the fastest way to
+dump everything known about an element. Keys are namespaced so they cannot
+collide:
 
 | Source | Key form |
 |---|---|
@@ -172,7 +173,7 @@ hide a whole chunk at a time, and each call logs one warning saying so.
 `FragmentVisibilityIndex.SupportsElementFiltering` on the model root tells you
 which kind of build you have — it reads the build rather than the setting, so a
 merged mode that fell back to a flat build reports element granularity.
-[ImportModes.md](ImportModes.md) has the measured numbers.
+[ImportModes.md](ImportModes.md) sets out the granularity per mode.
 
 Filtering hides through a separate channel from the one the build uses to hide
 `IfcSpace`-class volumes, so clearing a filter can never reveal geometry that

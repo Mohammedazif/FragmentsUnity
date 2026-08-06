@@ -21,7 +21,6 @@ package.
 - Modified: yes. A caller-owned work budget is threaded through the solver so
   hostile geometry cannot drive the diagonal search into unbounded work; on
   exhaustion the solver stops and the caller falls back to fan triangulation.
-  This mirrors the modification FragmentsUE applies to `earcut.hpp`.
 
 ```
 ISC License

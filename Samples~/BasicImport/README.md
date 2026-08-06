@@ -59,11 +59,11 @@ clipboard.
 Press Play and click the building. Every click logs one line:
 
 ```
-IFCWALLSTANDARDCASE 'Muro básico:Exterior - Insulation on Masonry:139854' | GlobalId 1fIVuvFffDJRV_SJESOtDs | storey 01 - Entry Level
+IFCWALLSTANDARDCASE 'Basic Wall:Exterior' | GlobalId 1fIVuvFffDJRV_SJESOtDs | storey Entry Level
 ```
 
-That is a real record from `school_arq.frag`. `ClickToInspect` does nothing
-fragment-specific except the one call in the middle: raycast, then
+`ClickToInspect` does nothing fragment-specific except the one call in the
+middle: raycast, then
 `FragmentPicker.TryGetMetadata(hit, out item)`. The element it resolves is
 correct in every import mode, including the merged ones where many elements share
 a single mesh — so never read the hit GameObject and assume it is the element.
@@ -120,8 +120,8 @@ merged mode where one mesh holds many elements;
 
 ## A note on rebar
 
-`school_str.frag` logs one info line on import:
-`619 circle-extrusion (rebar) representation(s) skipped - not implemented`.
+A structural model logs one info line on import:
+`<n> circle-extrusion (rebar) representation(s) skipped - not implemented`.
 That is expected — circular extrusions are not imported, and the count is
 reported so you know what is missing. See the Limitations section of
 `Documentation~/index.md`.

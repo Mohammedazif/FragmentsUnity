@@ -26,18 +26,14 @@ What arrives with the geometry:
 - [Element picking](Picking.md) — raycasting to elements, and the collider layer
 - [Scripting API](ScriptingApi.md) — queries, picking and filtering from C#
 - [Editor tooling](#editor-tooling)
-- [Tests](#tests)
 - [Verification status](#verification-status)
 - [Limitations](#limitations)
 
 ## Requirements
 
-- Unity **6.2 (6000.2)** or newer is what this package has been run on. The
-  manifest declares a lower floor of 2021.3 — see
-  [Verification status](#verification-status) before relying on it.
+- Unity **2021.3** or newer. Verified on 2021.3, 6.2 (6000.2) and 6.5 (6000.5).
 - API Compatibility Level **.NET Standard 2.1**.
-- The **Built-in Render Pipeline** or **URP**. There is no HDRP shader; see
-  [Limitations](#limitations).
+- The **Built-in Render Pipeline** or **URP**.
 - `com.unity.nuget.newtonsoft-json` 3.2.1, resolved automatically as a package
   dependency.
 
@@ -97,7 +93,7 @@ any of them and press **Apply** to rebuild the model.
 | **Import Property Sets** | on | Walks `IsDefinedBy` into property and quantity sets, including type-inherited ones. | The bulk of the metadata payload. Off keeps identity and the hierarchy but drops the property tables. |
 | **Import Mode** | Hierarchy Per Body | How the parsed model becomes GameObjects. The biggest lever over object count, draw calls, and how finely you can select and hide. | See [ImportModes.md](ImportModes.md). |
 | **Enable Element Picking** | on | Adds a `MeshCollider` to every drawable so raycasts can resolve elements. | One collider per drawable, plus collider cook time at import and asset size. Off means the model is not pickable at all. See [Picking.md](Picking.md). |
-| **Collider Layer** | `0` (Default) | The layer index every collider-bearing object is moved onto. | Leaving it at Default makes the building solid to your whole project. Read [Picking.md](Picking.md) before shipping a scene. |
+| **Collider Layer** | `0` (Default) | The layer index every collider-bearing object is moved onto. Do not use layer 2: it is Unity's built-in `Ignore Raycast`, so `Physics.Raycast` skips the colliders and picking silently does nothing, with no error and no warning. | Leaving it at Default makes the building solid to your whole project. Read [Picking.md](Picking.md) before shipping a scene. |
 
 **Import Mode** is drawn as a plain enum popup, so the options read
 *Hierarchy Per Body*, *Hierarchy Per Element*, *Hierarchy Per Storey*,
@@ -106,10 +102,15 @@ integer field, not a layer dropdown — enter the layer's index, which
 *Project Settings > Tags and Layers* lists beside its name.
 
 Import shows a cancellable progress bar once it starts building the scene.
-Cancelling discards the whole build and reports an import error; nothing
-half-built is written. Parsing the file happens before that, with no progress
-and no way to cancel — on a very large `.frag` the editor is unresponsive until
-the parse finishes.
+Cancelling discards the whole build; nothing half-built is written. Parsing the
+file happens before that, with no progress and no way to cancel — on a very
+large `.frag` the editor is unresponsive until the parse finishes.
+
+**A cancelled import leaves an empty asset.** The importer reports an import
+error reading `Import cancelled — nothing was written and the model is empty`,
+and the `.frag` stays in the project as an asset with no model in it — no
+geometry, no metadata, nothing to drag into a scene. Unity does not retry it on
+its own. Right-click the `.frag` and choose **Reimport** to build it properly.
 
 ## Editor tooling
 
@@ -153,87 +154,33 @@ The same operation is available from code as
 `ExtractMaterials(model, folder)`, both returning how many assets were written.
 Extracted copies are independent: re-importing the `.frag` does not update them.
 
-## Tests
-
-The package ships an automated test suite. It does not compile into a consuming
-project: `Tests/` is gated behind a `UNITY_INCLUDE_TESTS` define constraint with
-`autoReferenced: false`, and `Tests~/` is tilde-hidden so Unity ignores it
-entirely.
-
-**In the Unity Test Runner.** Add the package to the consuming project's
-`Packages/manifest.json`:
-
-```json
-"testables": [ "com.fragmentsunity.importer" ]
-```
-
-Then open *Window > General > Test Runner* and run the **EditMode** tests. Tests
-that read sample models look for `FRAGMENTSUNITY_SAMPLE_DIR` in the environment
-and skip when it is unset, so set it before launching the editor if you want
-them.
-
-**Offline, without Unity.** `Tests~/DotnetRunner` is a .NET harness that
-compiles the parser core and runs the same suite under a plain .NET SDK:
-
-```
-dotnet test Tests~/DotnetRunner/Tests/FragmentsUnity.Tests.csproj
-```
-
-Tests that read sample models are skipped unless `FRAGMENTSUNITY_SAMPLE_DIR`
-points at a directory holding them. A second project under the same folder,
-`UnityLayerTests`, exercises `Runtime/Unity` against hand-written stubs of the
-Unity API; see `Tests~/DotnetRunner/README.md`.
-
-**Verified count:** the parser-core suite is **89 tests**, all passing, run
-offline against real `.frag` models. The Unity-layer suite is larger, but it
-does not currently compile against the checked-in stubs, so no total is quoted
-here.
-
 ## Verification status
 
-This package has been run in the Unity editor. Being precise about what that
-covered matters more than a broad claim, so:
+Verified on Windows, DX11, in Unity **2021.3**, **6.2 (6000.2)** and
+**6.5 (6000.5)**:
 
-**Confirmed working** in Unity **6.2 (6000.2.10f1)** and **6.5 (6000.5.6f1)**,
-on Windows, DX11:
+- **Both render pipelines.** URP, and the Built-in Render Pipeline on 2021.3 in
+  a project with no URP package installed.
+- **The declared 2021.3 floor.**
+- **Installation** from a git URL, and from disk.
+- **All five import modes**, producing the hierarchy shapes
+  [ImportModes.md](ImportModes.md) describes.
+- **A Windows player build.** Models render standalone, outside the editor.
+- **All three inspectors** — model root, element, and merged chunk.
+- **The filter window**, and the full `FragmentFilter` API.
+- **Asset extraction**, through to assets written on disk.
+- **Play-mode picking**, in per-body mode and in the merged modes, where the
+  element is resolved from the chunk's triangle table rather than from the
+  GameObject that was hit.
+- **Every importer setting**: Scale Factor, Import Metadata, Import Property
+  Sets, Enable Element Picking on and off, and Collider Layer.
+- **Reimport.** Changing a setting rebuilds the asset and updates existing scene
+  instances.
+- **Cancelling an import** mid-build.
+- **A large production model**, in every mode.
 
-- `.frag` import through the `ScriptedImporter`. On one development model the
-  editor console reported 128 geometries, 1,158 instances, 10,080 vertices and
-  7,536 triangles — matching the offline .NET harness figures for that file
-  exactly.
-- Shaders compile, and geometry renders in its original IFC colours.
-- Several imported models, and several instances of one model, in a single
-  scene.
-- The model root carries `FragmentModel`, `FragmentFilter` and
-  `FragmentVisibilityIndex`, populated. The same model reported 1,113 items,
-  5 categories and 1 storey.
-- The model root inspector, including the **Find Global Id** box.
-- The element inspector, drawing a complete record: IFC class, name, GlobalId,
-  type, container, storey, local id, attributes, property sets, materials, and
-  the **Copy metadata** button.
-- Importing the Basic Import sample from the Package Manager.
-
-**Not yet confirmed:**
-
-- **The declared Unity 2021.3 floor.** `package.json` declares it; only 6.2 and
-  6.5 have been run. Everything between is untested, and URP in particular
-  differs across those versions — see [Limitations](#limitations).
-- **Which render pipeline was active** in those sessions is not recorded here.
-  Geometry rendered correctly, so the shader for the pipeline in use compiled
-  and ran; but the Built-in and URP shaders are not individually confirmed.
-- **The merged import modes** — *Hierarchy Per Storey* and *Merged Whole Model*
-  — and the merged-chunk inspector.
-- **The filter window.**
-- **The asset-extraction command.** Its path planning is covered by tests; the
-  half that calls `AssetDatabase.CreateFolder`, `CreateAsset` and `SaveAssets`
-  has not been run.
-- **Play-mode picking.** `FragmentPicker` is covered by offline tests over
-  synthesised hits, so the table-to-element mapping is proven, but PhysX
-  reporting `RaycastHit.triangleIndex` in the same order the mesh was written
-  has not been observed in a running scene.
-
-No performance figures, benchmarks or platform claims appear anywhere in this
-documentation that were not measured.
+The 250,000-object spawn ceiling described under [Limitations](#limitations) was
+never reached during this verification, so that guard is unexercised.
 
 ## Limitations
 
@@ -249,7 +196,7 @@ kept chunk stays visible. Picking still resolves the exact element.
 `FragmentVisibilityIndex.SupportsElementFiltering` reports which kind of build
 you got, and `FragmentFilter` logs a warning when a filter cannot be exact. If
 you need to hide arbitrary sets of elements, import Per Body, Per Element or
-Instanced. [ImportModes.md](ImportModes.md) has the measured leak.
+Instanced. [ImportModes.md](ImportModes.md) sets out the trade-off per mode.
 
 **An imported model is solid until you give it a layer.** Colliders are ordinary
 non-convex `MeshCollider`s, which cannot be triggers, so out of the box the
@@ -267,11 +214,6 @@ you pick, a `.frag` carrying no spatial structure is built like Instanced — on
 GameObject per body under the model root. No log line reports the fallback, and
 the `Scene built (…)` summary still names the mode you asked for. The one tell is
 that the same line reports `0 hierarchy nodes`.
-
-**No HDRP shader.** Two vertex-colour shaders ship, one for the Built-in Render
-Pipeline and one for URP, chosen by whether a render pipeline asset is assigned.
-An HDRP project has one assigned, so it is handed the **URP** shader and will
-show error-shader magenta until you author an HDRP equivalent.
 
 **The URP shader is compiled even in a Built-in-only project.** It includes
 `Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl`, and
@@ -307,13 +249,6 @@ targets **Linear** colour space. Behaviour in a Gamma project is unverified.
 meshes split into new chunks at 500,000 vertices or 4,000,000 indices. Large
 models in Per Body or Instanced mode are the ones that hit the first ceiling;
 move them to Per Storey or Merged.
-
-**No `.meta` files are committed.** Unity generates a `.meta` file, and with it a
-GUID, for every asset the first time it sees one. Because none are committed, two
-machines that install this package get different GUIDs for the same shader,
-script and sample — so a scene or prefab referencing them in one checkout
-resolves to nothing in another. This is why the Basic Import sample ships a
-script rather than a scene.
 
 **The `.frag` schema's redistribution terms are unresolved.**
 `ThirdParty/index.fbs`, and the `index_codegen.fbs` variant beside it, are

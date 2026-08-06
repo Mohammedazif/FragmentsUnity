@@ -79,7 +79,9 @@ model pickable without making it an obstacle is a **layer** the project excludes
 from movement and from unrelated queries:
 
 1. *Project Settings > Tags and Layers* — add a layer, for example `Fragments`,
-   and note the index it was given.
+   and note the index it was given. Never use layer 2: it is Unity's built-in
+   `Ignore Raycast`, and `Physics.Raycast` skips those colliders, so picking
+   silently stops working with no error and no warning.
 2. Select the `.frag` asset and enter that index in **Collider Layer**, then
    Apply. The field is a plain integer, not a layer dropdown. Every object that
    receives a collider is moved onto that layer; objects without a collider —
