@@ -68,7 +68,7 @@ namespace FragmentsUnity
             };
 
             var verifier = new Verifier(byteBuffer, verifierOptions);
-            // ThatOpen writes no file identifier; null skips the identifier check (mirrors FragParser.cpp:64-70).
+            // ThatOpen writes no file identifier, so null skips the identifier check.
             if (!verifier.VerifyBuffer(null, false, Schema.ModelVerify.Verify))
             {
                 var failed = new FragmentImportResult
@@ -93,7 +93,7 @@ namespace FragmentsUnity
             result.ModelGuid = ReadBoundedString(model.Guid, FragmentImportLimits.MaxGlobalIdBytes, ref rejectedStrings);
             result.Metadata = ReadBoundedString(model.Metadata, FragmentImportLimits.MaxModelHeaderBytes, ref rejectedStrings);
 
-            // Categories run parallel to local_ids; mirrors FragParser.cpp:1323.
+            // Categories run parallel to local_ids.
             int categoryCount = Math.Min(
                 Math.Min(model.CategoriesLength, model.LocalIdsLength),
                 (int)FragmentImportLimits.MaxModelItems);
@@ -104,7 +104,6 @@ namespace FragmentsUnity
                     ReadBoundedString(model.Categories(i), FragmentImportLimits.MaxCategoryBytes, ref rejectedStrings));
             }
 
-            // local_ids[dense_index] = ifc_express_id; the reverse map turns express ids into dense ones.
             int localIdCount = model.LocalIdsLength;
             if (localIdCount > FragmentImportLimits.MaxModelItems)
             {
@@ -226,7 +225,7 @@ namespace FragmentsUnity
             return result;
         }
 
-        // Bounds the decoded char count, not the UTF-8 byte count of FragParser.cpp:183 — accepted divergence.
+        // The cap counts decoded characters, not UTF-8 bytes.
         private static string ReadBoundedString(string value, uint maxBytes, ref int rejectedStrings)
         {
             if (value == null)
@@ -240,7 +239,6 @@ namespace FragmentsUnity
                 return string.Empty;
             }
 
-            // FString(UTF8_TO_TCHAR(c_str())) stops at the first NUL; mirrors FragParser.cpp:199.
             int nulIndex = value.IndexOf('\0');
             return nulIndex < 0 ? value : value.Substring(0, nulIndex);
         }

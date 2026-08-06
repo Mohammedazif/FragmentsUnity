@@ -11,7 +11,7 @@ using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace FragmentsUnity
 {
-    /// <summary>Sub-asset persisting an imported model's metadata as compressed JSON, deserialized on demand.</summary>
+    /// <summary>Sub-asset persisting an imported model's metadata as compressed JSON.</summary>
     public sealed class FragmentModelAsset : ScriptableObject
     {
         private const string AssetName = "ModelData";
@@ -40,7 +40,6 @@ namespace FragmentsUnity
                 ModelInfo = result.ModelInfo
             };
 
-            // Only items carrying geometry are queryable, deduped in instance order; mirrors FragmentsActor.cpp:781
             var seenLocalIds = new HashSet<int>();
             foreach (FragmentInstance instance in result.Instances)
             {
@@ -61,7 +60,7 @@ namespace FragmentsUnity
             return asset;
         }
 
-        /// <summary>Deserializes the stored payload; a missing or corrupt payload yields empty data, never null.</summary>
+        /// <summary>A missing or corrupt payload yields empty data, never null.</summary>
         public FragmentModelData Load()
         {
             if (_compressedMetadata == null || _compressedMetadata.Length == 0)
@@ -76,7 +75,6 @@ namespace FragmentsUnity
             }
             catch (Exception exception) when (exception is JsonException || exception is InvalidDataException)
             {
-                // A hand-edited or corrupt asset must not break metadata queries.
                 Debug.LogWarning("[FragmentsUnity] Model metadata failed to load; queries will see an empty model.", this);
                 return new FragmentModelData();
             }
@@ -103,6 +101,11 @@ namespace FragmentsUnity
             int bytesRead;
             while ((bytesRead = gzip.Read(chunk, 0, chunk.Length)) > 0)
             {
+                // A hand-edited asset can hold a compression bomb, so the total is capped.
+                if (output.Length + bytesRead > FragmentImportLimits.MaxMetadataDecompressBytes)
+                {
+                    throw new InvalidDataException("Model metadata exceeds the decompression ceiling.");
+                }
                 output.Write(chunk, 0, bytesRead);
             }
 

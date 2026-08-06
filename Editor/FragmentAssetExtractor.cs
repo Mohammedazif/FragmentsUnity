@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace FragmentsUnity.Editor
 {
-    /// <summary>Promotes an imported model's mesh and material sub-assets into standalone assets a project can edit and reference.</summary>
+    /// <summary>Promotes an imported model's mesh and material sub-assets into standalone project assets.</summary>
     public static class FragmentAssetExtractor
     {
         private const string MenuPath = "Assets/Fragments/Extract Meshes and Materials";
         private const string LogPrefix = "[FragmentsUnity] ";
 
-        /// <summary>Writes one asset per distinct mesh under the model; returns how many were written.</summary>
+        /// <summary>Writes one asset per distinct mesh.</summary>
         public static int ExtractMeshes(FragmentModel model, string targetFolder)
         {
             if (model == null)
@@ -42,7 +42,7 @@ namespace FragmentsUnity.Editor
             return written;
         }
 
-        /// <summary>Writes one asset per distinct material under the model; returns how many were written.</summary>
+        /// <summary>Writes one asset per distinct material.</summary>
         public static int ExtractMaterials(FragmentModel model, string targetFolder)
         {
             if (model == null)
@@ -107,7 +107,7 @@ namespace FragmentsUnity.Editor
             var meshes = new List<Mesh>();
             var seen = new HashSet<Mesh>();
 
-            // Filtering may have deactivated whole storeys, and their meshes are part of the model all the same.
+            // Filtered-out meshes are part of the model all the same.
             foreach (MeshFilter filter in model.gameObject.GetComponentsInChildren<MeshFilter>(true))
             {
                 if (filter.sharedMesh != null && seen.Add(filter.sharedMesh))
@@ -139,9 +139,8 @@ namespace FragmentsUnity.Editor
         {
             if (!plan.IsValid)
             {
-                // mirrors the over-long-path refusal at FragAssetFactory.cpp:74-78
                 Debug.LogError(
-                    $"{LogPrefix}Asset path '{plan.ModelFolder}' is {plan.ModelFolder.Length} characters, which leaves no room for asset names — nothing was extracted.");
+                    $"{LogPrefix}Asset path '{plan.MaterialFolder}' is {plan.MaterialFolder.Length} characters, which leaves no room for asset names — nothing was extracted.");
                 return false;
             }
 
@@ -173,13 +172,19 @@ namespace FragmentsUnity.Editor
         {
             string uniquePath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
 
-            // CreateAsset refuses an object that already belongs to the imported .frag, so the copy is what gets saved.
+            // CreateAsset refuses an object that already belongs to the imported .frag.
             Object copy = Object.Instantiate(source);
             copy.name = Path.GetFileNameWithoutExtension(uniquePath);
             AssetDatabase.CreateAsset(copy, uniquePath);
 
-            // mirrors counting only the assets that actually landed at FragAssetFactory.cpp:253-260
-            return AssetDatabase.LoadAssetAtPath<Object>(uniquePath) != null;
+            // CreateAsset gives no success signal.
+            if (AssetDatabase.LoadAssetAtPath<Object>(uniquePath) != null)
+            {
+                return true;
+            }
+
+            Object.DestroyImmediate(copy);
+            return false;
         }
 
         private static void SaveAssets()

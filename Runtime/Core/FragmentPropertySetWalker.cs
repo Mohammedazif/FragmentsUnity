@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace FragmentsUnity
 {
-    /// <summary>Attaches IFC property and quantity sets to items by walking IsDefinedBy/HasPropertySets relations under strict budgets.</summary>
+    /// <summary>Attaches IFC property and quantity sets to items under bounded budgets.</summary>
     internal static class FragmentPropertySetWalker
     {
         private const string RelIsDefinedBy = "IsDefinedBy";
@@ -12,7 +12,7 @@ namespace FragmentsUnity
         private const string RelHasProperties = "HasProperties";
         private const string RelQuantities = "Quantities";
 
-        /// <summary>Walks each item's property relations, spending per-item and per-model unit budgets; caller gates on ImportPropertySets.</summary>
+        /// <summary>Does not check ImportPropertySets; the caller must gate on it.</summary>
         internal static void WalkPropertySets(FragmentImportResult result, Action<FragmentImportSeverity, string> log)
         {
             int itemCount = result.Items.Count;
@@ -64,7 +64,8 @@ namespace FragmentsUnity
                 if (wantedProperties)
                 {
                     propertyCandidateItems++;
-                    if (nodeBudget <= 0)
+                    // An untouched budget of zero means the model ran dry earlier, not that this item spent it.
+                    if (nodeBudget <= 0 && nodeBudget < startBudget)
                     {
                         budgetExhaustedItems++;
                     }
@@ -198,7 +199,6 @@ namespace FragmentsUnity
 
                 if (newSet.Properties.Count > 0)
                 {
-                    // mirrors FragParser.cpp:694-697
                     if (newSet.Properties.Capacity > newSet.Properties.Count * 2)
                     {
                         newSet.Properties.Capacity = newSet.Properties.Count;
@@ -207,7 +207,7 @@ namespace FragmentsUnity
                 }
             }
 
-            // A node that is itself a set never chains into HasPropertySets; mirrors FragParser.cpp:702-705.
+            // A node that is itself a set never chains into HasPropertySets.
             if (isPropertySet)
             {
                 return;
@@ -236,7 +236,6 @@ namespace FragmentsUnity
             }
         }
 
-        // FString operator== defaults to ignore-case; mirrors FragParser.cpp:624.
         private static bool NamesEqual(string relationName, string expected)
         {
             return string.Equals(relationName, expected, StringComparison.OrdinalIgnoreCase);

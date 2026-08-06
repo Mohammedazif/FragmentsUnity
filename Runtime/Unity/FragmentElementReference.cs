@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace FragmentsUnity
 {
-    /// <summary>Tags a spawned GameObject with its IFC local id so metadata resolves through the model root.</summary>
+    /// <summary>Tags a spawned GameObject with its IFC local id.</summary>
     public sealed class FragmentElementReference : MonoBehaviour
     {
         [SerializeField] private int _localId = -1;
@@ -13,10 +13,10 @@ namespace FragmentsUnity
             set { _localId = value; }
         }
 
-        /// <summary>Resolves this element's metadata via the FragmentModel above it; null when detached or unknown.</summary>
+        /// <summary>Null when there is no FragmentModel above this element, or the id is unknown.</summary>
         public FragmentItemMetadata GetMetadata()
         {
-            // Filtering hides whole storeys, so inactive ancestors must still resolve; mirrors FragmentsMetadataComponent.cpp:201
+            // Filtering deactivates geometry-free nodes, so inactive ancestors must still resolve.
             FragmentModel model = GetComponentInParent<FragmentModel>(true);
             return model != null ? model.FindByLocalId(_localId) : null;
         }

@@ -3,14 +3,13 @@ using UnityEngine;
 
 namespace FragmentsUnity
 {
-    /// <summary>Answers filter requests by querying the model on this GameObject and driving its visibility index.</summary>
+    /// <summary>Filters the elements of the model on this GameObject.</summary>
     [DisallowMultipleComponent]
     public sealed class FragmentFilter : MonoBehaviour
     {
         private FragmentModel _model;
         private FragmentVisibilityIndex _index;
 
-        /// <summary>Shows only the elements of one IFC category; mirrors FragmentsActor.cpp:1218.</summary>
         public void IsolateByCategory(string category)
         {
             if (CanQueryModel())
@@ -19,7 +18,7 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Shows only one storey and everything it contains; mirrors FragmentsActor.cpp:1223.</summary>
+        /// <summary>Shows only one storey and everything it contains.</summary>
         public void IsolateByStorey(string storeyName)
         {
             if (CanQueryModel())
@@ -28,7 +27,7 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Shows only the elements carrying an attribute or property value; mirrors FragmentsActor.cpp:1228.</summary>
+        /// <summary>Shows only the elements carrying an attribute or property value.</summary>
         public void IsolateByAttribute(string name, string value, bool exactMatch)
         {
             if (CanQueryModel())
@@ -45,7 +44,6 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Shows or hides one set of elements; mirrors SetVisibilityByLocalIds at FragmentsActor.h:132.</summary>
         public void SetVisibleLocalIds(IEnumerable<int> localIds, bool visible)
         {
             if (HasFilterableElements())
@@ -70,7 +68,6 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Makes everything visible again; mirrors FragmentsActor.cpp:1243.</summary>
         public void ClearFilter()
         {
             if (Index != null)
@@ -122,14 +119,12 @@ namespace FragmentsUnity
         {
             if (Index == null || !Index.HasEntries)
             {
-                // mirrors FragmentsActor.cpp:1179-1185
                 Debug.LogWarning($"[FragmentsUnity] {name} has no per-element objects to filter. Re-import in one of the hierarchy modes.", this);
                 return false;
             }
 
             if (!Index.SupportsElementFiltering)
             {
-                // mirrors FragmentsActor.cpp:1187-1193
                 Debug.LogWarning(
                     $"[FragmentsUnity] {name} was imported in a merged mode, so filtering can only isolate whole "
                     + "chunks. Anything finer will hide the chunk it belongs to.",

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FragmentsUnity
 {
-    /// <summary>Output of a scene build: the root GameObject and every mesh and material created for it.</summary>
+    /// <summary>Output of a scene build.</summary>
     public sealed class FragmentSceneBuildResult
     {
         public GameObject Root;
@@ -12,7 +12,7 @@ namespace FragmentsUnity
         public int SpawnedNodes;
         public int MergedChunks;
 
-        /// <summary>True when the build was cancelled and discarded; Root, Meshes and Materials are then empty.</summary>
+        /// <summary>True when the build was cancelled and discarded; Root is then null and the lists are empty.</summary>
         public bool Cancelled;
     }
 }

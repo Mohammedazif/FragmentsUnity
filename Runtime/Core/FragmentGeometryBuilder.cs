@@ -34,7 +34,7 @@ namespace FragmentsUnity
 
         private static List<Vector3> ReadShellPoints(Schema.Shell shell, FragmentShellBuildState state)
         {
-            // Triangulation runs in raw right-handed source space; mirrors FragParser.cpp:1479.
+            // Triangulation runs in the raw right-handed source space, so points stay unconverted.
             int pointCount = state.PointBudget > 0
                 ? Math.Min(shell.PointsLength, (int)FragmentImportLimits.MaxShellPoints)
                 : 0;
@@ -53,7 +53,7 @@ namespace FragmentsUnity
                 float z = point.Z;
                 if (HasNonFiniteComponent(x, y, z))
                 {
-                    // A non-finite component poisons the Newell normal and earcut; mirrors FragParser.cpp:1499.
+                    // A non-finite component would poison the Newell normal and earcut.
                     state.NonFinitePointCount++;
                     rawPoints.Add(Vector3.Zero);
                 }
@@ -149,7 +149,7 @@ namespace FragmentsUnity
 
                 if (triangleIndices.Count == 0 && faceVertexCount >= 3)
                 {
-                    // Fan fallback over the outer ring only; mirrors FragParser.cpp:1683.
+                    // The fan fallback covers the outer ring only, not the holes.
                     for (int vertexIndex = 1; vertexIndex + 1 < faceVertexCount; vertexIndex++)
                     {
                         triangleIndices.Add(0);
@@ -158,14 +158,14 @@ namespace FragmentsUnity
                     }
                 }
 
-                // Unity fronts are wound opposite to UE, so FragParser.cpp:1697's negation must not carry over.
+                // Unity's front-face winding means the converted normal must not be negated.
                 Vector3 unityNormal = FragmentCoordinateConverter.ConvertPosition(
                     (float)normalX, (float)normalY, (float)normalZ, 1f);
 
                 List<int> faceGeometryIndices = MergeFaceVertices(
                     facePositions, faceRawIndices, unityNormal, scaleFactor, geometry, rawIndexToGeometryIndices);
 
-                // The mirror conversion flips handedness, so winding is reversed; mirrors FragParser.cpp:1740.
+                // The coordinate conversion flips handedness, so triangle winding is reversed here.
                 for (int i = 0; i + 2 < triangleIndices.Count; i += 3)
                 {
                     geometry.Indices.Add(faceGeometryIndices[triangleIndices[i]]);
@@ -195,7 +195,7 @@ namespace FragmentsUnity
                 }
                 if (holeVertexCount > (int)FragmentImportLimits.MaxFaceRingVertices || state.VertexBudget <= 0)
                 {
-                    // Budget exhaustion counts as an oversized face here too; mirrors FragParser.cpp:1646.
+                    // Budget exhaustion is deliberately tallied as an oversized face.
                     state.OversizedFaceCount++;
                     continue;
                 }
@@ -207,7 +207,7 @@ namespace FragmentsUnity
                     int rawIndex = holes.GetRawIndex((int)holeId, vertexIndex);
                     faceRawIndices.Add(rawIndex);
                     Vector3 holePosition = GetRawPointOrZero(rawPoints, rawIndex);
-                    // Appended to the flat face arrays so earcut indices land there; mirrors FragParser.cpp:1664.
+                    // Earcut's indices address the flat face arrays, so hole vertices must append there.
                     facePositions.Add(holePosition);
                     holeRing.Add(GetCoordinate(holePosition, dimension0));
                     holeRing.Add(GetCoordinate(holePosition, dimension1));
@@ -299,7 +299,7 @@ namespace FragmentsUnity
             double absY = Math.Abs(normalY);
             double absZ = Math.Abs(normalZ);
 
-            // Axes swap on a negative dominant component to preserve winding; mirrors FragParser.cpp:1592.
+            // The axis pair swaps on a negative dominant component to preserve winding.
             if (absZ > absX && absZ > absY)
             {
                 return normalZ > 0.0 ? (0, 1) : (1, 0);
@@ -319,7 +319,6 @@ namespace FragmentsUnity
                 {
                     Vector3 normal = geometry.Normals[i];
                     float lengthSquared = normal.LengthSquared();
-                    // Near-zero normals stay unnormalized like FVector::Normalize; mirrors FragParser.cpp:1763.
                     if (lengthSquared >= FragmentImportLimits.MinimumSafeNormalLengthSquared)
                     {
                         geometry.Normals[i] = normal / MathF.Sqrt(lengthSquared);
@@ -341,7 +340,7 @@ namespace FragmentsUnity
                 result.TotalTriangles += geometry.Indices.Count / 3;
             }
 
-            // Added even when empty so the geometry index tracks the shell index; mirrors FragParser.cpp:1775.
+            // Empty geometries are still added so geometry indices stay aligned with shell indices.
             result.Geometries.Add(geometry);
         }
 
@@ -376,7 +375,6 @@ namespace FragmentsUnity
 
         private static Vector3 GetRawPointOrZero(List<Vector3> rawPoints, int rawIndex)
         {
-            // Out-of-range raw indices contribute the origin; mirrors FragParser.cpp:1565.
             return rawIndex >= 0 && rawIndex < rawPoints.Count ? rawPoints[rawIndex] : Vector3.Zero;
         }
 

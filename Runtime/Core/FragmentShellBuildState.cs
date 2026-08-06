@@ -1,6 +1,6 @@
 namespace FragmentsUnity
 {
-    /// <summary>Model-wide geometry budgets and diagnostics counters shared across every shell.</summary>
+    /// <summary>Model-wide geometry state shared across every shell.</summary>
     internal sealed class FragmentShellBuildState
     {
         public long VertexBudget = FragmentImportLimits.GeometryVertexBudget;

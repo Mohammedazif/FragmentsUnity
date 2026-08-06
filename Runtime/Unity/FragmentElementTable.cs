@@ -17,7 +17,7 @@ namespace FragmentsUnity
             _localIds = localIds ?? Array.Empty<int>();
         }
 
-        /// <summary>The distinct element local ids welded into this chunk, in first-triangle order.</summary>
+        /// <summary>The distinct local ids, in first-triangle order.</summary>
         public List<int> GetDistinctLocalIds()
         {
             var distinct = new List<int>();
@@ -32,7 +32,7 @@ namespace FragmentsUnity
             return distinct;
         }
 
-        /// <summary>Returns the local id of the last part starting at or before the triangle, -1 when the triangle is unknown.</summary>
+        /// <summary>The last part starting at or before the triangle; -1 before the first part.</summary>
         public int FindLocalId(int triangleIndex)
         {
             if (triangleIndex < 0 || _triangleStarts.Length == 0)
@@ -44,7 +44,6 @@ namespace FragmentsUnity
             int high = _triangleStarts.Length - 1;
             int found = -1;
 
-            // mirrors FragmentsActor.cpp:867-883
             while (low <= high)
             {
                 int mid = (low + high) / 2;

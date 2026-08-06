@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FragmentsUnity
 {
-    /// <summary>Per-build state every import mode shares: mesh and material caches, the spawn ceiling, progress, picking colliders and the visibility index.</summary>
+    /// <summary>Per-build state shared by every import mode.</summary>
     internal sealed class FragmentSceneSpawnContext
     {
         private readonly Dictionary<long, Mesh> _meshCache = new Dictionary<long, Mesh>();
@@ -66,7 +66,6 @@ namespace FragmentsUnity
 
         internal Mesh GetOrCreateMesh(FragmentInstance instance)
         {
-            // mirrors FragmentsActor.cpp:386
             long pairKey = ((long)instance.GeometryIndex << 32) | (uint)instance.MaterialIndex;
             if (_meshCache.TryGetValue(pairKey, out Mesh cachedMesh))
             {
@@ -131,7 +130,6 @@ namespace FragmentsUnity
             if (Options.EnablePicking)
             {
                 target.AddComponent<MeshCollider>().sharedMesh = mesh;
-                // Unity has no per-collider channels; the layer carries the intent of FragmentsActor.cpp:91-122
                 target.layer = Options.ColliderLayer;
             }
         }

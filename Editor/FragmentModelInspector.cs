@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FragmentsUnity.Editor
 {
-    /// <summary>Inspector for an imported model root: summary counts, GlobalId search, and the selected element's IFC data.</summary>
+    /// <summary>Inspector for an imported model root.</summary>
     [CustomEditor(typeof(FragmentModel))]
     public sealed class FragmentModelInspector : UnityEditor.Editor
     {
@@ -43,7 +43,7 @@ namespace FragmentsUnity.Editor
         private bool _showMaterials;
         private bool _showClassifications;
 
-        /// <summary>The element metadata a selected GameObject contributes to this model; null when it belongs elsewhere.</summary>
+        /// <summary>Null when the GameObject belongs to a different model.</summary>
         public static FragmentItemMetadata ResolveSelection(GameObject selected, FragmentModel model)
         {
             if (selected == null || model == null)
@@ -51,7 +51,7 @@ namespace FragmentsUnity.Editor
                 return null;
             }
 
-            // Filtering deactivates whole storeys, so inactive ancestors must still resolve.
+            // Filtering deactivates geometry-free nodes, so inactive ancestors must still resolve.
             FragmentElementReference reference = selected.GetComponentInParent<FragmentElementReference>(true);
             if (reference == null || reference.gameObject.GetComponentInParent<FragmentModel>(true) != model)
             {

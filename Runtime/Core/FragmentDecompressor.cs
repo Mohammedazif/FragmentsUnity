@@ -5,7 +5,7 @@ using System.IO.Compression;
 
 namespace FragmentsUnity
 {
-    /// <summary>Detects the zlib envelope on a .frag payload and inflates it under a decompression-bomb ceiling; mirrors FragParser.cpp:84.</summary>
+    /// <summary>Inflates zlib-wrapped .frag payloads under a decompression-bomb ceiling.</summary>
     public static class FragmentDecompressor
     {
         private const byte ZlibMagicByte = 0x78;
@@ -17,7 +17,7 @@ namespace FragmentsUnity
         private const int Adler32BatchBytes = 5552;
         private const double BytesPerMegabyte = 1024.0 * 1024.0;
 
-        /// <summary>Returns false with null output when data is not a usable zlib stream; the caller then treats the buffer as uncompressed.</summary>
+        /// <summary>False means the data is not usable zlib; the caller treats the buffer as uncompressed.</summary>
         public static bool TryDecompress(byte[] data, out byte[] decompressed, Action<FragmentImportSeverity, string> log)
         {
             decompressed = null;
@@ -28,7 +28,7 @@ namespace FragmentsUnity
             if (data[0] != ZlibMagicByte)
                 return false;
 
-            // A zlib header is valid when the CMF/FLG word divides by 31; a FLG whitelist misses 0x5E.
+            // A FLG whitelist misses 0x5E.
             if ((((uint)data[0] << 8) | data[1]) % ZlibHeaderChecksumDivisor != 0)
                 return false;
 
@@ -41,7 +41,7 @@ namespace FragmentsUnity
                 FragmentImportLimits.MinInflateAllowanceBytes,
                 FragmentImportLimits.MaxInflateAllowanceBytes);
 
-            // data.Length * 4 is a 32-bit product that wraps negative past a 512 MB input; mirrors FragParser.cpp:118.
+            // The 32-bit product wraps negative past a 512 MB input.
             int presizeBytes = (int)Math.Min(
                 (long)data.Length * FragmentImportLimits.InflateOutputPresizePerInputByte, inflateAllowance);
 
@@ -56,7 +56,7 @@ namespace FragmentsUnity
             try
             {
                 int bytesInflated;
-                // DeflateStream never consumes the trailing adler32; Read returning 0 is the end of the stream.
+                // DeflateStream never consumes the trailing adler32.
                 while ((bytesInflated = inflateStream.Read(chunk, 0, chunk.Length)) > 0)
                 {
                     totalInflated += bytesInflated;
@@ -80,7 +80,7 @@ namespace FragmentsUnity
                 return false;
             }
 
-            // inflate() verifies the adler32 at stream end (FragParser.cpp:130); truncated input rejects here where zlib would return partial output.
+            // Checking the adler32 here rejects truncated input that would otherwise pass as partial output.
             if (data.Length < ZlibHeaderBytes + ZlibTrailerBytes || runningAdler != ReadTrailerAdler32(data))
             {
                 log?.Invoke(FragmentImportSeverity.Error, "zlib inflate failed: adler32 checksum mismatch");

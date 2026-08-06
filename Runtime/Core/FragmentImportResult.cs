@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace FragmentsUnity
 {
-    /// <summary>Engine-neutral output of a .frag parse; the seam between parsing and scene building.</summary>
+    /// <summary>Engine-neutral output of a .frag parse.</summary>
     public sealed class FragmentImportResult
     {
         public string ModelGuid { get; set; } = string.Empty;
@@ -20,7 +20,7 @@ namespace FragmentsUnity
 
         public List<string> Categories { get; } = new List<string>();
 
-        /// <summary>Indexed by local id, parallel to the model's local_ids; empty when metadata import is off.</summary>
+        /// <summary>Indexed by local id; empty when metadata import is off.</summary>
         public List<FragmentItemMetadata> Items { get; } = new List<FragmentItemMetadata>();
 
         public FragmentItemMetadata ModelInfo { get; set; } = new FragmentItemMetadata();

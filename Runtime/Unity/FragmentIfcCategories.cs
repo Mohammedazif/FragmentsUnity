@@ -18,7 +18,6 @@ namespace FragmentsUnity
             return string.Equals(category, expected, StringComparison.OrdinalIgnoreCase);
         }
 
-        // mirrors FragmentsActor.cpp:1299-1306
         internal static bool IsSpatialContainer(string category)
         {
             return Matches(category, Project)
@@ -28,7 +27,6 @@ namespace FragmentsUnity
                 || Matches(category, Space);
         }
 
-        // mirrors FragmentsActor.cpp:1624-1635
         internal static bool IsInvisibleVolume(string category)
         {
             return Matches(category, Space)

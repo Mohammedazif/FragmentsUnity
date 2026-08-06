@@ -2,7 +2,7 @@ using System;
 
 namespace FragmentsUnity
 {
-    /// <summary>Resolves each item's spatial container, type object and building storey from its relations.</summary>
+    /// <summary>Resolves each item's place in the model hierarchy from its relations.</summary>
     internal static class FragmentContainmentResolver
     {
         private const string RelContainedInStructure = "ContainedInStructure";
@@ -12,7 +12,7 @@ namespace FragmentsUnity
         private const string TypeCategorySuffix = "TYPE";
         private const string CategoryBuildingStorey = "IFCBUILDINGSTOREY";
 
-        /// <summary>Fills the item's container from its first ContainedInStructure target; Decomposes only fills an empty container.</summary>
+        /// <summary>ContainedInStructure takes precedence; Decomposes only fills an empty container.</summary>
         internal static void ResolveContainer(FragmentImportResult result, FragmentItemMetadata item)
         {
             foreach (FragmentRelation relation in item.Relations)
@@ -26,7 +26,6 @@ namespace FragmentsUnity
                 {
                     continue;
                 }
-                // A later ContainedInStructure overwrites a Decomposes container; mirrors FragParser.cpp:1030.
                 if (item.ContainerLocalId != -1 && !isContainment)
                 {
                     continue;
@@ -47,7 +46,7 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Finds the item's type object among IsDefinedBy targets and copies the type's own attributes into a FromType property set.</summary>
+        /// <summary>Appends the type's own attributes to the item as a FromType property set.</summary>
         internal static void ResolveTypeObject(FragmentImportResult result, FragmentItemMetadata item)
         {
             foreach (FragmentRelation relation in item.Relations)
@@ -101,7 +100,6 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Finds each item's building storey by walking container ancestors; a nested element's storey may be indirect.</summary>
         internal static void ResolveStoreys(FragmentImportResult result)
         {
             for (int itemIndex = 0; itemIndex < result.Items.Count; itemIndex++)
@@ -127,7 +125,6 @@ namespace FragmentsUnity
             }
         }
 
-        // FString operator== defaults to ignore-case; mirrors FragParser.cpp:1021.
         private static bool NamesEqual(string left, string right)
         {
             return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);

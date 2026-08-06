@@ -1,6 +1,6 @@
 namespace FragmentsUnity
 {
-    /// <summary>Hardening budgets defending against hostile or corrupt .frag files; values mirror FragParser.cpp.</summary>
+    /// <summary>Hardening budgets defending against hostile or corrupt .frag files.</summary>
     public static class FragmentImportLimits
     {
         public const long MinInflateAllowanceBytes = 256L * 1024 * 1024;
@@ -9,6 +9,7 @@ namespace FragmentsUnity
         public const int InflateOutputPresizePerInputByte = 4;
         public const int InflateChunkBytes = 1024 * 1024;
         public const int MetadataDecompressChunkBytes = 1024 * 1024;
+        public const long MaxMetadataDecompressBytes = 512L * 1024 * 1024;
 
         public const int VerifierTableBudgetBytesPerTable = 4;
         public const int VerifierMinTableBudget = 1000000;
@@ -33,16 +34,12 @@ namespace FragmentsUnity
 
         public const int MaxSpawnedObjects = 250000;
 
-        // mirrors MaxAssetNameChars at FragAssetFactory.cpp:20
         public const int MaxExtractedAssetNameChars = 64;
 
-        // mirrors the base-path ceiling at FragAssetFactory.cpp:72
         public const int MaxExtractedFolderPathChars = 200;
 
-        // mirrors GMaxMergedVertices at FragmentsActor.cpp:560
         public const int MaxMergedVertices = 500000;
 
-        // mirrors GMaxMergedIndices at FragmentsActor.cpp:563
         public const long MaxMergedIndices = 4000000;
 
         public const int MergeBucketColorLevels = 255;
@@ -77,27 +74,22 @@ namespace FragmentsUnity
 
         public const int StoreyAncestorSearchLimit = 8;
 
-        // mirrors MaxRowsPerGroup at FragmentsMetadataDetails.cpp:51
         public const int MaxInspectorRowsPerSection = 200;
 
-        // mirrors MaxPropertySetGroups at FragmentsMetadataDetails.cpp:52
         public const int MaxInspectorPropertySets = 100;
 
         public const int MaxInspectorChunkElements = 200;
 
         public const float VertexColorGammaExponent = 2.2f;
 
-        // mirrors the surface heuristic at FragmentsActor.cpp:603-613
         public const float GlassBlueDominanceOverRed = 0.15f;
         public const float GlassBlueDominanceOverGreen = 0.05f;
         public const float OpaqueOpacityThreshold = 0.99f;
         public const float GlassOpacityThreshold = 0.5f;
         public const float ForcedGlassOpacity = 0.5f;
 
-        // mirrors M_FragBase_Glass Roughness 0.1 at FragmentsUEEditorModule.cpp:272
         public const float GlassSmoothness = 0.9f;
 
-        // mirrors the non-glass instance Roughness 0.65 at FragmentsActor.cpp:80
         public const float NonGlassSmoothness = 0.35f;
     }
 }

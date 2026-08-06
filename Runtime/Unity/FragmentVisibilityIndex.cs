@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FragmentsUnity
 {
-    /// <summary>Maps element local ids to the GameObjects drawing them so filtering can hide and show whole elements.</summary>
+    /// <summary>Maps element local ids to the GameObjects drawing them.</summary>
     [DisallowMultipleComponent]
     public sealed class FragmentVisibilityIndex : MonoBehaviour
     {
@@ -15,13 +15,11 @@ namespace FragmentsUnity
         private Dictionary<int, List<GameObject>> _targetsByLocalId;
         private readonly HashSet<int> _hiddenLocalIds = new HashSet<int>();
 
-        /// <summary>True when at least one element is registered; mirrors SupportsFiltering at FragmentsActor.cpp:1071.</summary>
         public bool HasEntries
         {
             get { return _localIds.Count > 0 && _targets.Count > 0; }
         }
 
-        /// <summary>True when each registered object draws one element alone; mirrors SupportsElementFiltering at FragmentsActor.cpp:1076.</summary>
         public bool SupportsElementFiltering
         {
             get { return _elementGranular; }
@@ -33,13 +31,12 @@ namespace FragmentsUnity
             _elementGranular = elementGranular;
         }
 
-        /// <summary>True while any element is hidden; mirrors FragmentsActor.h:156.</summary>
         public bool IsFilterActive
         {
             get { return _hiddenLocalIds.Count > 0; }
         }
 
-        /// <summary>Adds one drawable object for an element; an element may own many objects. Mirrors FragmentsActor.cpp:1081-1088.</summary>
+        /// <summary>An element may own many objects.</summary>
         public void Register(int localId, GameObject target)
         {
             if (localId < 0 || target == null)
@@ -61,7 +58,6 @@ namespace FragmentsUnity
             return _hiddenLocalIds.Contains(localId);
         }
 
-        /// <summary>Shows or hides every object registered for these ids; mirrors FragmentsActor.cpp:1147-1173.</summary>
         public void SetVisible(IEnumerable<int> localIds, bool visible)
         {
             if (localIds == null)
@@ -89,7 +85,6 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Hides everything registered except these ids; mirrors ApplyIsolation at FragmentsActor.cpp:1175-1211.</summary>
         public void Isolate(IEnumerable<int> localIds)
         {
             var visibleLocalIds = new HashSet<int>(localIds ?? Array.Empty<int>());
@@ -115,7 +110,7 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Restores everything this index hid; mirrors ClearFilter at FragmentsActor.cpp:1243-1256.</summary>
+        /// <summary>Restores everything this index hid.</summary>
         public void Clear()
         {
             // The serialized targets outlive a domain reload, so sweeping them restores even after the hidden set is lost.
@@ -134,7 +129,7 @@ namespace FragmentsUnity
                 if (_targetsByLocalId == null)
                 {
                     _targetsByLocalId = new Dictionary<int, List<GameObject>>();
-                    // The two serialized lists are editable apart in the Inspector, so only paired entries are indexed.
+                    // The two serialized lists are editable apart in the Inspector.
                     int paired = Math.Min(_localIds.Count, _targets.Count);
                     for (int entry = 0; entry < paired; entry++)
                     {

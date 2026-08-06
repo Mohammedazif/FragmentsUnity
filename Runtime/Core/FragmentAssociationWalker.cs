@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace FragmentsUnity
 {
-    /// <summary>Attaches materials and classifications to items by walking HasAssociations relations under strict budgets.</summary>
+    /// <summary>Attaches materials and classifications to items by walking HasAssociations relations.</summary>
     internal static class FragmentAssociationWalker
     {
         private const string RelHasAssociations = "HasAssociations";
@@ -19,7 +19,7 @@ namespace FragmentsUnity
         private const string AttrIdentification = "Identification";
         private const string AttrItemReference = "ItemReference";
 
-        /// <summary>Walks each item's associations under per-item and per-model budgets, then resolves containment, type objects and storeys.</summary>
+        /// <summary>Also resolves containment, type objects and storeys.</summary>
         internal static void WalkAssociations(FragmentImportResult result, Action<FragmentImportSeverity, string> log)
         {
             int itemCount = result.Items.Count;
@@ -65,7 +65,7 @@ namespace FragmentsUnity
                 }
 
                 modelBudget = Math.Max(0, modelBudget - Math.Clamp(startBudget - nodeBudget, 0, startBudget));
-                // An untouched budget of zero means the model ran dry earlier, not that this item spent it; mirrors FragParser.cpp:1013.
+                // An untouched budget of zero means the model ran dry earlier, not that this item spent it.
                 if (nodeBudget <= 0 && nodeBudget < startBudget)
                 {
                     budgetExhaustedItems++;
@@ -138,7 +138,7 @@ namespace FragmentsUnity
 
             if (target.Category.IndexOf(CategoryClassificationFragment, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                // IFC2X3 calls it ItemReference, IFC4 calls it Identification; mirrors FragParser.cpp:878-883.
+                // IFC2X3 calls it ItemReference, IFC4 calls it Identification.
                 FragmentAttribute identification = target.FindAttribute(AttrIdentification);
                 FragmentAttribute itemReference = target.FindAttribute(AttrItemReference);
                 string classificationName = identification != null
@@ -270,13 +270,12 @@ namespace FragmentsUnity
             return string.Empty;
         }
 
-        // Unlike FCString::Atof, trailing garbage yields 0 rather than the numeric prefix; mirrors FragParser.cpp:946.
+        // Trailing garbage yields 0 rather than the leading numeric prefix.
         private static float ParseThickness(string value)
         {
             return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed) ? parsed : 0f;
         }
 
-        // FString operator== defaults to ignore-case; mirrors FragParser.cpp:812.
         private static bool NamesEqual(string relationName, string expected)
         {
             return string.Equals(relationName, expected, StringComparison.OrdinalIgnoreCase);

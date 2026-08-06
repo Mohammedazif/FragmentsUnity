@@ -3,16 +3,15 @@ using System.Collections.Generic;
 
 namespace FragmentsUnity
 {
-    /// <summary>Everything known about one IFC item: identity, attributes, sets, materials, relations, placement.</summary>
+    /// <summary>All metadata parsed for one IFC item.</summary>
     public sealed class FragmentItemMetadata
     {
-        /// <summary>Dense id; also the index into FragmentImportResult.Items.</summary>
+        /// <summary>Doubles as the index into FragmentImportResult.Items; -1 when the budget stopped short of this item.</summary>
         public int LocalId { get; set; } = -1;
 
-        /// <summary>IFC STEP express id (#1234).</summary>
         public long ExpressId { get; set; }
 
-        /// <summary>IFC GlobalId, a 22-character base64 GUID.</summary>
+        /// <summary>A 22-character base64 GUID.</summary>
         public string GlobalId { get; set; } = string.Empty;
 
         public string Category { get; set; } = string.Empty;

@@ -2,7 +2,7 @@ using UnityEditor;
 
 namespace FragmentsUnity.Editor
 {
-    /// <summary>Inspector for a spawned element: its IFC metadata inline, with the same copy affordance as the model root.</summary>
+    /// <summary>Inspector for a spawned element's IFC metadata.</summary>
     [CustomEditor(typeof(FragmentElementReference))]
     public sealed class FragmentElementInspector : UnityEditor.Editor
     {

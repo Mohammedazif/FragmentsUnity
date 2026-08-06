@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace FragmentsUnity
 {
-    /// <summary>Recovers item names from raw attribute tuples ["Name","...","IFCLABEL"] when parsed metadata has none.</summary>
+    /// <summary>Recovers item names from raw attribute tuples when parsed metadata has none.</summary>
     internal sealed class FragmentNameExtractor
     {
         private const string NameTuplePrefix = "[\"Name\",";
@@ -56,7 +56,7 @@ namespace FragmentsUnity
             for (int j = 0; j < scanCount; j++)
             {
                 string tuple = attribute.Data(j);
-                // Cap and budget count decoded chars, not the UTF-8 bytes of FragParser.cpp:1942 — accepted divergence.
+                // The cap and budget count decoded characters, not UTF-8 bytes.
                 if (tuple == null || tuple.Length > FragmentImportLimits.MaxNameTupleBytes)
                 {
                     continue;
@@ -68,7 +68,7 @@ namespace FragmentsUnity
                     break;
                 }
 
-                // FString(UTF8_TO_TCHAR(c_str())) stops at the first NUL; mirrors FragParser.cpp:1953.
+                // The string ends at the first NUL byte.
                 int nulIndex = tuple.IndexOf('\0');
                 if (nulIndex >= 0)
                 {
@@ -90,7 +90,6 @@ namespace FragmentsUnity
             return null;
         }
 
-        // mirrors FragParser.cpp:1956-1980
         private static string ExtractQuotedValue(string tuple)
         {
             int firstQuote = tuple.IndexOf('"', NameTuplePrefix.Length);

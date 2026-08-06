@@ -3,7 +3,7 @@ using UnityEngine.Rendering;
 
 namespace FragmentsUnity
 {
-    /// <summary>Creates the vertex-color materials fragment meshes render with, one per surface kind and pipeline.</summary>
+    /// <summary>Creates the vertex-color materials fragment meshes render with.</summary>
     public static class FragmentMaterialFactory
     {
         public const string VertexColorShaderName = "FragmentsUnity/VertexColor";
@@ -16,7 +16,6 @@ namespace FragmentsUnity
         public const string PackageUrpShaderAssetPath =
             "Packages/com.fragmentsunity.importer/Runtime/Shaders/FragmentVertexColorURP.shader";
 
-        /// <summary>The shader asset an import should load and depend on, chosen for the active render pipeline.</summary>
         public static string ActiveShaderAssetPath =>
             GraphicsSettings.currentRenderPipeline != null ? PackageUrpShaderAssetPath : PackageShaderAssetPath;
 
@@ -42,7 +41,6 @@ namespace FragmentsUnity
             return CreateMaterial(FragmentSurfaceKind.Opaque, doubleSided, vertexColorShader);
         }
 
-        /// <summary>Builds a material configured for the surface kind, preferring the URP shader when a render pipeline asset is assigned.</summary>
         public static Material CreateMaterial(FragmentSurfaceKind kind, bool doubleSided, Shader vertexColorShader = null)
         {
             var material = new Material(ResolveShader(vertexColorShader))

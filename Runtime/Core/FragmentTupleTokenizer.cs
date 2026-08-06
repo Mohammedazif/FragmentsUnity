@@ -8,7 +8,7 @@ namespace FragmentsUnity
     /// <summary>Tokenizes one serialized attribute tuple like ["Name","Wall","IFCLABEL"] into its elements.</summary>
     internal static class FragmentTupleTokenizer
     {
-        /// <summary>Splits the bracketed tuple into trimmed tokens; a JSON null becomes an empty token.</summary>
+        /// <summary>A JSON null becomes an empty token.</summary>
         internal static void SplitTuple(string input, List<string> tokens)
         {
             tokens.Clear();
@@ -63,7 +63,7 @@ namespace FragmentsUnity
                                 case 'u':
                                     if (i + 5 < len)
                                     {
-                                        // Non-hex input yields 0 where the FragParser.cpp:247 strtoi keeps a leading-digit prefix — accepted divergence.
+                                        // A non-hex \u escape decodes to 0 rather than failing.
                                         int.TryParse(input.Substring(i + 2, 4), NumberStyles.HexNumber,
                                             CultureInfo.InvariantCulture, out int codeUnit);
                                         token.Append((char)codeUnit);
@@ -137,7 +137,7 @@ namespace FragmentsUnity
                         i++;
                     }
 
-                    // The backslash skip can push i past len; FString::Mid clamps, mirrors FragParser.cpp:308.
+                    // A trailing backslash can push the index past the end, so the slice must clamp.
                     string token = input.Substring(start, Math.Min(i, len) - start).Trim();
                     if (token.Equals("null", StringComparison.OrdinalIgnoreCase))
                     {

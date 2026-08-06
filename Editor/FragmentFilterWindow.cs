@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FragmentsUnity.Editor
 {
-    /// <summary>Dockable window listing the selected model's storeys and categories and driving its FragmentFilter.</summary>
+    /// <summary>Window that drives the selected model's FragmentFilter.</summary>
     public sealed class FragmentFilterWindow : EditorWindow
     {
         private const string MenuPath = "Window/Fragments/Filter";
@@ -40,7 +40,6 @@ namespace FragmentsUnity.Editor
 
         private readonly FragmentFilterState _state = new FragmentFilterState();
 
-        /// <summary>Opens the filter window, docked wherever it was last placed.</summary>
         [MenuItem(MenuPath)]
         public static void Open()
         {
@@ -52,7 +51,7 @@ namespace FragmentsUnity.Editor
             Repaint();
         }
 
-        // OnGUI is a Unity message, not a base member; the stubs this package compile-checks against declare it virtual.
+        // OnGUI is a Unity message, not an override; the compile-check stubs declare it virtual.
 #pragma warning disable CS0114
         private void OnGUI()
 #pragma warning restore CS0114
@@ -141,7 +140,7 @@ namespace FragmentsUnity.Editor
                 return;
             }
 
-            // Acting on a row rewrites the visibility of the rows around it, so the list itself must not be rebuilt here.
+            // Acting on a row rewrites other rows' visibility, so the list must not be rebuilt here.
             for (int index = 0; index < rows.Count; index++)
             {
                 FragmentFilterRow row = rows[index];

@@ -5,10 +5,10 @@ using Newtonsoft.Json.Linq;
 
 namespace FragmentsUnity
 {
-    /// <summary>Builds the synthetic IfcProject model-info item from the header JSON and the project/site/building items.</summary>
+    /// <summary>Builds the synthetic IfcProject model-info item.</summary>
     internal static class FragmentModelInfoBuilder
     {
-        // names = FILE_NAME(name, timestamp, author, org, preprocessor, system, authorization); mirrors FragParser.cpp:1152.
+        // Ordered to match the fields of the IFC FILE_NAME header entry.
         private static readonly string[] NameLabels =
         {
             "File Name", "Exported", "Author", "Organization",
@@ -125,18 +125,16 @@ namespace FragmentsUnity
         private static JObject ParseHeader(string metadata)
         {
             using var stringReader = new StringReader(metadata);
-            // DateParseHandling.None keeps FILE_NAME timestamps verbatim, as UE's reader does.
+            // FILE_NAME timestamps must stay verbatim strings, never parsed dates.
             using var jsonReader = new JsonTextReader(stringReader) { DateParseHandling = DateParseHandling.None };
             return JObject.Load(jsonReader);
         }
 
-        // UE FJsonObject field lookup is case-insensitive (TMap<FString> hashing).
         private static JToken GetField(JObject root, string fieldName)
         {
             return root.GetValue(fieldName, StringComparison.OrdinalIgnoreCase);
         }
 
-        // mirrors FJsonObject::TryGetStringField: numbers and bools coerce; objects, arrays and null do not.
         private static bool TryGetStringField(JObject root, string fieldName, out string value)
         {
             JToken token = GetField(root, fieldName);
@@ -149,7 +147,6 @@ namespace FragmentsUnity
             return false;
         }
 
-        // mirrors FJsonValue::AsString: objects and arrays read as empty strings.
         private static string TokenToString(JToken token)
         {
             return token is JValue ? token.ToString() : string.Empty;
@@ -203,7 +200,7 @@ namespace FragmentsUnity
                         continue;
                     }
 
-                    // Derived units carry no name of their own; mirrors FragParser.cpp:1273-1277.
+                    // Derived units carry no name of their own.
                     if (string.IsNullOrEmpty(unit.Name))
                     {
                         continue;

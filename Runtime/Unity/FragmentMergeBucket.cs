@@ -14,11 +14,9 @@ namespace FragmentsUnity
 
         internal static string ResolveCategory(string category)
         {
-            // mirrors FragmentsActor.cpp:627
             return string.IsNullOrEmpty(category) ? UnclassifiedCategory : category;
         }
 
-        // mirrors FragmentsActor.cpp:628-634; the surface kind stands in for its bIsGlass term
         internal static string BuildKey(
             string category, System.Numerics.Vector4 color, float resolvedOpacity, FragmentSurfaceKind surfaceKind)
         {

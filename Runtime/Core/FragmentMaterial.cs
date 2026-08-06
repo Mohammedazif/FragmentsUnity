@@ -7,7 +7,7 @@ namespace FragmentsUnity
 
         public string LayerSetName { get; set; } = string.Empty;
 
-        /// <summary>In the model's IFC length unit. Zero when this is not a layer.</summary>
+        /// <summary>In the model's IFC length unit.</summary>
         public float Thickness { get; set; }
 
         public int LocalId { get; set; } = -1;

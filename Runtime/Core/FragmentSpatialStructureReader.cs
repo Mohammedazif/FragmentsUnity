@@ -52,7 +52,7 @@ namespace FragmentsUnity
             }
         }
 
-        // Bounds the decoded char count, not the UTF-8 byte count of FragParser.cpp:183 — accepted divergence.
+        // The cap counts decoded characters, not UTF-8 bytes.
         private static string ReadBoundedCategory(string value)
         {
             if (value == null || value.Length > FragmentImportLimits.MaxCategoryBytes)
@@ -60,7 +60,7 @@ namespace FragmentsUnity
                 return string.Empty;
             }
 
-            // FString(UTF8_TO_TCHAR(c_str())) stops at the first NUL; mirrors FragParser.cpp:199.
+            // The string ends at the first NUL byte.
             int nulIndex = value.IndexOf('\0');
             return nulIndex < 0 ? value : value.Substring(0, nulIndex);
         }

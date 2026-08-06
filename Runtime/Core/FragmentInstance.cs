@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace FragmentsUnity
 {
-    /// <summary>One placement of a geometry with its material color and identity.</summary>
+    /// <summary>One placement of a geometry.</summary>
     public sealed class FragmentInstance
     {
         public int LocalId { get; set; } = -1;
@@ -19,7 +19,7 @@ namespace FragmentsUnity
 
         public FragmentTransform Transform { get; set; } = FragmentTransform.Identity;
 
-        /// <summary>Linear RGBA in [0, 1].</summary>
+        /// <summary>RGBA in [0, 1].</summary>
         public Vector4 Color { get; set; } = Vector4.One;
 
         public float Opacity { get; set; } = 1.0f;

@@ -5,13 +5,12 @@ namespace FragmentsUnity
     /// <summary>Converts Fragments source space (right-handed, Y-up, meters) to Unity space (left-handed, Y-up, meters).</summary>
     public static class FragmentCoordinateConverter
     {
-        /// <summary>Single-axis mirror; callers must reverse triangle winding. Mirrors FragParser.cpp:2057.</summary>
+        /// <summary>Callers must reverse triangle winding.</summary>
         public static Vector3 ConvertPosition(float x, float y, float z, float scale)
         {
             return new Vector3(-x * scale, y * scale, z * scale);
         }
 
-        /// <summary>Reconstructs z = cross(x, y), conjugates the basis by the mirror; mirrors FragParser.cpp:2076.</summary>
         public static FragmentTransform BuildTransform(
             double positionX, double positionY, double positionZ,
             float xDirectionX, float xDirectionY, float xDirectionZ,

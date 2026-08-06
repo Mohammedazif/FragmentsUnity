@@ -29,10 +29,8 @@ namespace FragmentsUnity
         private const string MaterialThicknessFormat = "{0}  —  {1} thick";
         private const string RelatedIdSeparator = ", ";
 
-        // stands in for %g; mirrors FragmentsMetadataComponent.cpp:179
         private const string ThicknessNumberFormat = "G6";
 
-        /// <summary>False when the item has nothing worth showing; mirrors FragmentsMetadataDetails.cpp:157.</summary>
         public static bool HasDisplayableMetadata(FragmentItemMetadata item)
         {
             return item != null
@@ -41,7 +39,6 @@ namespace FragmentsUnity
                     || !string.IsNullOrEmpty(item.Category));
         }
 
-        /// <summary>The whole item as readable text; mirrors FragmentsMetadataComponent.cpp:130.</summary>
         public static string ToDisplayString(FragmentItemMetadata item)
         {
             if (item == null)
@@ -81,7 +78,6 @@ namespace FragmentsUnity
             return builder.ToString();
         }
 
-        /// <summary>One material as an inspector value; mirrors FragmentsMetadataDetails.cpp:269.</summary>
         public static string DescribeMaterial(FragmentMaterial material)
         {
             if (material == null)
@@ -99,7 +95,7 @@ namespace FragmentsUnity
                 material.Thickness.ToString(ThicknessNumberFormat, CultureInfo.InvariantCulture));
         }
 
-        /// <summary>Distinct material names in first-seen order; AddUnique folds case because FString does.</summary>
+        /// <summary>Distinct material names in first-seen order, compared case-insensitively.</summary>
         public static List<string> GetMaterialNames(FragmentItemMetadata item)
         {
             var names = new List<string>();
@@ -108,7 +104,6 @@ namespace FragmentsUnity
                 return names;
             }
 
-            // mirrors TArray::AddUnique at FragmentsMetadataComponent.cpp:112
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (FragmentMaterial material in item.Materials)
             {
@@ -126,7 +121,7 @@ namespace FragmentsUnity
             return names;
         }
 
-        /// <summary>Every set name in file order, duplicates included; mirrors FragmentsMetadataComponent.cpp:36.</summary>
+        /// <summary>Every set name in file order, duplicates included.</summary>
         public static List<string> GetPropertySetNames(FragmentItemMetadata item)
         {
             var names = new List<string>();
@@ -145,14 +140,14 @@ namespace FragmentsUnity
             return names;
         }
 
-        /// <summary>A copy of the named set's properties, matched case-insensitively; empty when the set is absent.</summary>
+        /// <summary>A copy, matched case-insensitively; empty when the set is absent.</summary>
         public static List<FragmentAttribute> GetPropertiesInSet(FragmentItemMetadata item, string setName)
         {
             FragmentPropertySet set = item != null ? item.FindPropertySet(setName ?? string.Empty) : null;
             return set != null ? new List<FragmentAttribute>(set.Properties) : new List<FragmentAttribute>();
         }
 
-        /// <summary>The copy-to-clipboard payload: everything ToDisplayString shows plus the item's relations.</summary>
+        /// <summary>Everything ToDisplayString shows plus the item's relations.</summary>
         public static string ToClipboardText(FragmentItemMetadata item)
         {
             if (item == null)

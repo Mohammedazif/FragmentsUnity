@@ -50,10 +50,10 @@ namespace FragmentsUnity
             get { return _categories; }
         }
 
-        /// <summary>The storey the last isolate kept, or null when the view is not a storey isolation.</summary>
+        /// <summary>Null when the view is not a storey isolation.</summary>
         public string IsolatedStorey { get; private set; }
 
-        /// <summary>The category the last isolate kept, or null when the view is not a category isolation.</summary>
+        /// <summary>Null when the view is not a category isolation.</summary>
         public string IsolatedCategory { get; private set; }
 
         public int HiddenCount
@@ -61,7 +61,7 @@ namespace FragmentsUnity
             get { return _hiddenLocalIds.Count; }
         }
 
-        /// <summary>True when the build registered elements to hide; mirrors SupportsFiltering at FragmentsActor.cpp:1071.</summary>
+        /// <summary>True when the build registered elements to hide.</summary>
         public bool SupportsFiltering
         {
             get { return _index != null && _index.HasEntries; }
@@ -73,7 +73,6 @@ namespace FragmentsUnity
             get { return _index != null && _index.SupportsElementFiltering; }
         }
 
-        /// <summary>One line describing what is on screen; mirrors GetStatusText at SFragmentsFilterPanel.cpp:397.</summary>
         public string StatusMessage
         {
             get
@@ -106,7 +105,7 @@ namespace FragmentsUnity
             }
         }
 
-        /// <summary>Points the state at the selected model, rebuilding the rows only when the model changed.</summary>
+        /// <summary>Rebuilds the rows only when the model changed.</summary>
         public void SetModel(FragmentModel model)
         {
             if (_model == model)
@@ -121,7 +120,6 @@ namespace FragmentsUnity
             Refresh();
         }
 
-        /// <summary>Re-reads the model's counts and the scene's current visibility; mirrors SFragmentsFilterPanel.cpp:237.</summary>
         public void Refresh()
         {
             _storeys.Clear();
@@ -152,7 +150,6 @@ namespace FragmentsUnity
             RefreshRowVisibility();
         }
 
-        /// <summary>Elements to keep when isolating one storey; mirrors SFragmentsFilterPanel.cpp:361.</summary>
         public IReadOnlyList<int> IsolateStorey(string storeyName)
         {
             IReadOnlyList<int> localIds = FindRowLocalIds(_storeys, storeyName);
@@ -161,7 +158,6 @@ namespace FragmentsUnity
             return localIds;
         }
 
-        /// <summary>Elements to keep when isolating one category; mirrors SFragmentsFilterPanel.cpp:371.</summary>
         public IReadOnlyList<int> IsolateCategory(string category)
         {
             IReadOnlyList<int> localIds = FindRowLocalIds(_categories, category);
@@ -176,7 +172,6 @@ namespace FragmentsUnity
             return _model != null && !string.IsNullOrEmpty(attributeName);
         }
 
-        /// <summary>Elements to keep when isolating an attribute or property value; mirrors FragmentsActor.cpp:1228.</summary>
         public IReadOnlyList<int> IsolateAttribute(string attributeName, string attributeValue, bool exactMatch)
         {
             if (!CanIsolateAttribute(attributeName))
@@ -189,19 +184,16 @@ namespace FragmentsUnity
             return localIds;
         }
 
-        /// <summary>Elements to show or hide when a storey row is toggled; mirrors SFragmentsFilterPanel.cpp:338.</summary>
         public IReadOnlyList<int> ToggleStorey(string storeyName, bool visible)
         {
             return Toggle(FindRowLocalIds(_storeys, storeyName), visible);
         }
 
-        /// <summary>Elements to show or hide when a category row is toggled; mirrors SFragmentsFilterPanel.cpp:338.</summary>
         public IReadOnlyList<int> ToggleCategory(string category, bool visible)
         {
             return Toggle(FindRowLocalIds(_categories, category), visible);
         }
 
-        /// <summary>Brings every row back on screen; mirrors SFragmentsFilterPanel.cpp:379.</summary>
         public void ClearAll()
         {
             _hiddenLocalIds.Clear();
@@ -221,7 +213,6 @@ namespace FragmentsUnity
             rows.Sort(CompareRows);
         }
 
-        // Biggest first, then alphabetically; mirrors SFragmentsFilterPanel.cpp:39-42
         private static int CompareRows(FragmentFilterRow left, FragmentFilterRow right)
         {
             return left.Count != right.Count
@@ -229,7 +220,7 @@ namespace FragmentsUnity
                 : string.CompareOrdinal(left.Name, right.Name);
         }
 
-        // The scene may have been filtered from script or another window; mirrors SFragmentsFilterPanel.h:23
+        // The scene may have been filtered from script or another window.
         private void SyncHiddenFromScene()
         {
             if (_index == null || !_index.HasEntries)
@@ -300,7 +291,6 @@ namespace FragmentsUnity
             }
         }
 
-        // A storey and a category overlap, so one toggle changes what both report; mirrors SFragmentsFilterPanel.cpp:357
         private bool IsWhollyVisible(IReadOnlyList<int> localIds)
         {
             for (int index = 0; index < localIds.Count; index++)

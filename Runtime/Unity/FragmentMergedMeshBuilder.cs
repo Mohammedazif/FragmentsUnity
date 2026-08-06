@@ -84,7 +84,7 @@ namespace FragmentsUnity
 
             void FlushChunk()
             {
-                // mirrors FragmentsActor.cpp:682; an oversized part still becomes a chunk of its own
+                // An oversized part still becomes a chunk of its own.
                 if (partLocalIds.Count == 0)
                 {
                     return;
@@ -95,7 +95,6 @@ namespace FragmentsUnity
                     Mesh = CreateChunkMesh(
                         vertices, normals, colors, triangles, hasNormals,
                         BuildMeshName(namePrefix, bucket.Category, chunks.Count)),
-                    // mirrors the forced double-sided merged material at FragmentsActor.cpp:662
                     DoubleSided = true,
                     SurfaceKind = bucket.SurfaceKind,
                     Category = bucket.Category,
@@ -121,7 +120,6 @@ namespace FragmentsUnity
                     continue;
                 }
 
-                // mirrors FragmentsActor.cpp:740-745
                 if (vertices.Count > 0
                     && (vertices.Count + (long)geometry.Positions.Count > FragmentImportLimits.MaxMergedVertices
                         || chunkIndexCount + geometry.Indices.Count > FragmentImportLimits.MaxMergedIndices))
@@ -129,7 +127,7 @@ namespace FragmentsUnity
                     FlushChunk();
                 }
 
-                // mirrors FragMeshBuilder.cpp:268-271; recorded for every part so both tables stay parallel
+                // Recorded for every part so the two tables stay parallel.
                 triangleStarts.Add(triangles.Count / 3);
                 partLocalIds.Add(instance.LocalId);
                 hasNormals |= AppendPart(instance, bucket.Opacity, geometry, vertices, normals, colors, triangles);
@@ -151,7 +149,6 @@ namespace FragmentsUnity
             int vertexOffset = vertices.Count;
             int vertexCount = geometry.Positions.Count;
             bool partHasNormals = geometry.Normals.Count == vertexCount;
-            // mirrors FragmentsActor.cpp:659; every part of a bucket bakes the bucket's resolved opacity
             Color vertexColor = FragmentVertexColor.FromInstance(instance, bucketOpacity);
             Vector3 translation = FragmentUnityMath.ToUnityPosition(instance.Transform);
 
@@ -179,7 +176,6 @@ namespace FragmentsUnity
                 int index1 = geometry.Indices[i * 3 + 1];
                 int index2 = geometry.Indices[i * 3 + 2];
 
-                // Negative indices matter too; mirrors FragMeshBuilder.cpp:313-318.
                 if (index0 < 0 || index1 < 0 || index2 < 0
                     || index0 >= vertexCount || index1 >= vertexCount || index2 >= vertexCount)
                 {
@@ -203,7 +199,7 @@ namespace FragmentsUnity
             var mesh = new Mesh
             {
                 name = meshName,
-                // A 16-bit index buffer cannot address a chunk this large, and the format must be set before the triangles.
+                // The index format must be set before the triangles are assigned.
                 indexFormat = vertices.Count > ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16
             };
 
@@ -237,7 +233,6 @@ namespace FragmentsUnity
         private static Vector3 TransformNormal(System.Numerics.Quaternion rotation, System.Numerics.Vector3 normal)
         {
             System.Numerics.Vector3 rotated = System.Numerics.Vector3.Transform(normal, rotation);
-            // mirrors GetSafeNormal at FragMeshBuilder.cpp:329
             return rotated.LengthSquared() < FragmentImportLimits.MinimumSafeNormalLengthSquared
                 ? Vector3.zero
                 : FragmentUnityMath.ToUnityVector(System.Numerics.Vector3.Normalize(rotated));

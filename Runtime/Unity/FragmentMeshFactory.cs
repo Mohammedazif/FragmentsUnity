@@ -4,10 +4,10 @@ using UnityEngine.Rendering;
 
 namespace FragmentsUnity
 {
-    /// <summary>Builds a UnityEngine.Mesh from parsed geometry with the IFC material color baked into vertex colors.</summary>
+    /// <summary>Builds a Mesh from parsed geometry with the material color baked into vertex colors.</summary>
     public static class FragmentMeshFactory
     {
-        /// <summary>Returns null when the geometry has no positions or indices; mirrors FragMeshBuilder.cpp:59.</summary>
+        /// <summary>Returns null when the geometry has no positions or indices.</summary>
         public static Mesh CreateMesh(FragmentGeometry geometry, Color vertexColor, string meshName)
         {
             if (geometry == null || geometry.Positions.Count == 0 || geometry.Indices.Count == 0)
@@ -62,7 +62,6 @@ namespace FragmentsUnity
                 int index1 = geometry.Indices[i * 3 + 1];
                 int index2 = geometry.Indices[i * 3 + 2];
 
-                // Negative indices matter too; mirrors FragMeshBuilder.cpp:408.
                 if (index0 < 0 || index1 < 0 || index2 < 0
                     || index0 >= vertexCount || index1 >= vertexCount || index2 >= vertexCount)
                 {

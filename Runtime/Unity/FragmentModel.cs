@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace FragmentsUnity
 {
-    /// <summary>Root component of an imported fragment model: loads its metadata asset and answers item queries.</summary>
+    /// <summary>Root component of an imported fragment model.</summary>
     public sealed class FragmentModel : MonoBehaviour
     {
         [SerializeField] private FragmentModelAsset _modelAsset;
@@ -18,7 +18,6 @@ namespace FragmentsUnity
             get { return _modelAsset; }
         }
 
-        /// <summary>The metadata payload, deserialized on first access and re-read whenever the asset field is reassigned.</summary>
         public FragmentModelData Data
         {
             get
@@ -53,7 +52,6 @@ namespace FragmentsUnity
             FragmentModelData data = Data;
             if (_itemsByGlobalId == null)
             {
-                // TMap<FString, int32> matches keys case-insensitively; mirrors FragmentsActor.cpp:822
                 _itemsByGlobalId = new Dictionary<string, FragmentItemMetadata>(StringComparer.OrdinalIgnoreCase);
                 foreach (FragmentItemMetadata item in data.Items)
                 {
@@ -80,7 +78,7 @@ namespace FragmentsUnity
             return found;
         }
 
-        /// <summary>Finds the storey item itself plus every item contained in it; mirrors FragmentsActor.cpp:1033-1037.</summary>
+        /// <summary>Finds the storey item itself plus every item contained in it.</summary>
         public List<int> FindByStorey(string storeyName)
         {
             var found = new List<int>();
@@ -102,7 +100,7 @@ namespace FragmentsUnity
             return found;
         }
 
-        /// <summary>Finds items by direct attribute first, then property-set members; mirrors FragmentsActor.cpp:946-1000.</summary>
+        /// <summary>Finds items by direct attribute or property-set member.</summary>
         public List<int> FindByAttribute(string attributeName, string attributeValue, bool exactMatch)
         {
             var found = new List<int>();
@@ -126,10 +124,9 @@ namespace FragmentsUnity
             return CountNonEmptyValues(item => item.StoreyName);
         }
 
-        /// <summary>Flattens one item's attributes, property sets, classifications, materials and placement into name → value; later duplicates win.</summary>
+        /// <summary>Flattens one item's values into name → value; later duplicates win.</summary>
         public Dictionary<string, string> GetFlattenedValues(int localId)
         {
-            // Keys fold case like the UE TMap; mirrors FragmentsMetadataComponent.cpp:63
             var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             FragmentItemMetadata item = Data.FindItem(localId);
             if (item == null)
@@ -227,7 +224,6 @@ namespace FragmentsUnity
 
         private static bool MatchesValue(string candidate, string query, bool exactMatch)
         {
-            // An empty query value matches every item carrying the attribute; mirrors FragmentsActor.cpp:950-958
             if (string.IsNullOrEmpty(query))
             {
                 return true;
@@ -241,7 +237,6 @@ namespace FragmentsUnity
 
         private Dictionary<string, int> CountNonEmptyValues(Func<FragmentItemMetadata, string> selectValue)
         {
-            // TMap<FString, int32> keys merge case-insensitively; mirrors FragmentsActor.cpp:1022
             var counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (FragmentItemMetadata item in Data.Items)
             {

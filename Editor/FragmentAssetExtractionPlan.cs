@@ -5,10 +5,9 @@ using System.Text;
 
 namespace FragmentsUnity.Editor
 {
-    /// <summary>Computes the folders and collision-free asset paths an extraction writes; mirrors FFragAssetFactory's layout.</summary>
+    /// <summary>Computes the folders and collision-free asset paths an extraction writes.</summary>
     public sealed class FragmentAssetExtractionPlan
     {
-        // mirrors the /Game/Fragments default root at FragAssetFactory.cpp:60
         public const string DefaultTargetFolder = "Assets/Fragments";
 
         public const string MeshFolderName = "Meshes";
@@ -42,14 +41,13 @@ namespace FragmentsUnity.Editor
             IsValid = MaterialFolder.Length <= MaxFolderPathChars;
         }
 
-        /// <summary>One folder per model under the target root; mirrors BasePath at FragAssetFactory.cpp:69.</summary>
         public string ModelFolder { get; }
 
         public string MeshFolder { get; }
 
         public string MaterialFolder { get; }
 
-        /// <summary>False when the folder path leaves no room for asset names; mirrors FragAssetFactory.cpp:72-79.</summary>
+        /// <summary>False when the folder path leaves no room for asset names.</summary>
         public bool IsValid { get; }
 
         /// <summary>Every folder that must exist before writing into <paramref name="folder"/>, outermost first.</summary>
@@ -71,7 +69,6 @@ namespace FragmentsUnity.Editor
             return chain;
         }
 
-        /// <summary>Folds a source name into a file-system-safe asset name; mirrors SanitizeAssetName at FragAssetFactory.cpp:22.</summary>
         public static string SanitizeAssetName(string name)
         {
             int copyLength = name == null ? 0 : Math.Min(name.Length, MaxAssetNameChars);
@@ -101,13 +98,13 @@ namespace FragmentsUnity.Editor
             return sanitized.ToString();
         }
 
-        /// <summary>The path to write one extracted mesh to; never repeats a path this plan already handed out.</summary>
+        /// <summary>Never repeats a path this plan already handed out.</summary>
         public string MeshPath(string desiredName)
         {
             return UniquePath(MeshFolder, desiredName, MeshAssetExtension);
         }
 
-        /// <summary>The path to write one extracted material to; never repeats a path this plan already handed out.</summary>
+        /// <summary>Never repeats a path this plan already handed out.</summary>
         public string MaterialPath(string desiredName)
         {
             return UniquePath(MaterialFolder, desiredName, MaterialAssetExtension);
@@ -118,7 +115,6 @@ namespace FragmentsUnity.Editor
             string sanitized = SanitizeAssetName(desiredName);
             string path = folder + FolderSeparator + sanitized + extension;
 
-            // Reusing a path would overwrite the asset written moments ago; mirrors FragAssetFactory.cpp:112-118
             int suffix = 1;
             while (!_usedPaths.Add(path))
             {
@@ -140,7 +136,7 @@ namespace FragmentsUnity.Editor
                 return DefaultTargetFolder;
             }
 
-            // AssetDatabase only writes under the project's Assets root; mirrors the root fix-up at FragAssetFactory.cpp:62-65
+            // AssetDatabase only writes under the project's Assets root.
             if (folder != AssetsRootFolder && !folder.StartsWith(AssetsRootFolder + FolderSeparator, StringComparison.Ordinal))
             {
                 folder = AssetsRootFolder + FolderSeparator + folder;

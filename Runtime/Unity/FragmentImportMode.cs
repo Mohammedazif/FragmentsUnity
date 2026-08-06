@@ -1,6 +1,6 @@
 namespace FragmentsUnity
 {
-    /// <summary>How a parsed model becomes GameObjects; UE's Procedural mode is absent because Unity builds every mesh through the same Mesh path (UNITY_PORT.md section 6).</summary>
+    /// <summary>How a parsed model is arranged into GameObjects.</summary>
     public enum FragmentImportMode
     {
         HierarchyPerBody,

@@ -17,7 +17,7 @@ namespace FragmentsUnity
             FragmentImportResult result,
             Action<FragmentImportSeverity, string> log)
         {
-            // Verifier enforces both required vectors; empty meshes_items falls through to the per-sample check (FragParser.cpp:1811).
+            // An empty meshes_items vector is caught by the per-sample index check below.
             if (meshes.SamplesLength == 0)
             {
                 return;
@@ -53,7 +53,7 @@ namespace FragmentsUnity
                     continue;
                 }
 
-                // A 2 GB buffer cannot hold 2^31 ids, so a larger value is corrupt (mirrors FragParser.cpp:1843-1849).
+                // A 2 GB buffer cannot hold 2^31 ids, so a larger value is corrupt.
                 uint rawLocalId = meshes.MeshesItems((int)itemIndex);
                 if (rawLocalId > int.MaxValue)
                 {
@@ -73,7 +73,7 @@ namespace FragmentsUnity
                     }
                     else if (representation.RepresentationClass == Schema.RepresentationClass.CIRCLE_EXTRUSION)
                     {
-                        // TODO(CircleExtrusion) - skipped to match FragParser.cpp:1862
+                        // TODO(CircleExtrusion)
                         skippedCircleExtrusions++;
                     }
                 }
@@ -96,7 +96,7 @@ namespace FragmentsUnity
                     localTransform = ConvertTransform(meshes.LocalTransforms((int)localTransformIndex).Value, scaleFactor);
                 }
 
-                // Global transform is indexed by the sample's item index, not the sample index (mirrors FragParser.cpp:1888).
+                // Global transforms are indexed by item index, not sample index.
                 if (itemIndex < (uint)globalTransformCount)
                 {
                     globalTransform = ConvertTransform(meshes.GlobalTransforms((int)itemIndex).Value, scaleFactor);

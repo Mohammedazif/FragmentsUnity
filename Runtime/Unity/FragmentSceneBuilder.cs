@@ -5,10 +5,9 @@ using UnityEngine;
 
 namespace FragmentsUnity
 {
-    /// <summary>Builds a GameObject hierarchy from a parsed fragment model, following the requested import mode.</summary>
+    /// <summary>Builds a GameObject hierarchy from a parsed fragment model.</summary>
     public static class FragmentSceneBuilder
     {
-        // mirrors the cancelled-build message at FragmentsActor.cpp:257
         public const string CancelledMessage =
             "Import cancelled — nothing was written and the model is empty.";
 
@@ -25,11 +24,10 @@ namespace FragmentsUnity
         private const string WholeModelChunkPrefix = "Model";
         private const float MaterialsStageProgress = 0f;
 
-        // mirrors the actor ceiling at FragmentsActor.cpp:1345
         internal static readonly string SpawnLimitMessage =
             $"Stopped at {FragmentImportLimits.MaxSpawnedObjects} objects — the model has more instances than the importer will spawn in one pass.";
 
-        /// <summary>Builds the scene for options.Mode; null options build with the defaults.</summary>
+        /// <summary>Null options build with the defaults.</summary>
         public static FragmentSceneBuildResult Build(
             FragmentImportResult result,
             FragmentSceneBuildOptions options,
@@ -57,7 +55,6 @@ namespace FragmentsUnity
             return buildResult;
         }
 
-        // mirrors DiscardCancelledBuild at FragmentsActor.cpp:233-259
         private static void DiscardCancelledBuild(
             FragmentSceneBuildResult buildResult, Action<FragmentImportSeverity, string> log)
         {
@@ -86,7 +83,6 @@ namespace FragmentsUnity
         {
             switch (context.Options.Mode)
             {
-                // mirrors FragmentsActor.cpp:325-340
                 case FragmentImportMode.MergedWholeModel:
                     context.Progress.BeginStage(
                         ChunkStage, BuildStageStart, BuildStageEnd, context.Result.Instances.Count);
@@ -97,7 +93,6 @@ namespace FragmentsUnity
                     return BuildFlat(context);
 
                 default:
-                    // mirrors FragmentsActor.cpp:342; a model without a tree cannot be walked, so it falls back flat
                     return context.Result.SpatialRoot != null && context.Result.SpatialRoot.Children.Count > 0
                         ? new FragmentHierarchyBuilder(context).Build()
                         : BuildFlat(context);
@@ -106,7 +101,6 @@ namespace FragmentsUnity
 
         private static int BuildFlat(FragmentSceneSpawnContext context)
         {
-            // A flat build gives every body its own object whatever mode was requested.
             context.ElementGranularBuild = true;
 
             FragmentImportResult result = context.Result;
@@ -118,7 +112,6 @@ namespace FragmentsUnity
 
             foreach (FragmentInstance instance in result.Instances)
             {
-                // mirrors the per-instance cancel check at FragmentsActor.cpp:1369-1378
                 if (!context.Progress.ReportSteps(1))
                 {
                     break;
@@ -187,7 +180,6 @@ namespace FragmentsUnity
                 bodyOrdinals.TryGetValue(instance.LocalId, out int ordinal);
                 ordinal++;
                 bodyOrdinals[instance.LocalId] = ordinal;
-                // mirrors FragmentsActor.cpp:1556-1559
                 label += "_body" + ordinal;
             }
 
@@ -199,7 +191,6 @@ namespace FragmentsUnity
             string label = instance.Name;
             if (string.IsNullOrEmpty(label))
             {
-                // mirrors FragmentsActor.cpp:1544
                 label = string.IsNullOrEmpty(instance.Category)
                     ? $"{FallbackElementLabel}_{instance.LocalId}"
                     : $"{instance.Category}_{instance.LocalId}";
@@ -212,7 +203,6 @@ namespace FragmentsUnity
             var sanitized = new StringBuilder(label.Length);
             foreach (char character in label)
             {
-                // ASCII-only like FChar::IsAlnum under the C locale; mirrors FragmentsActor.cpp:1550
                 sanitized.Append(IsAsciiAlphanumeric(character) || character == '-' || character == '_' ? character : '_');
             }
             return sanitized.ToString();

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FragmentsUnity.Editor
 {
-    /// <summary>Inspector for a merged chunk: picks one of the elements welded into it and draws that element's IFC metadata.</summary>
+    /// <summary>Inspector that draws IFC metadata for one element welded into a merged chunk.</summary>
     [CustomEditor(typeof(FragmentElementTable))]
     public sealed class FragmentElementTableInspector : UnityEditor.Editor
     {
@@ -41,7 +41,7 @@ namespace FragmentsUnity.Editor
                 return;
             }
 
-            // Filtering deactivates whole storeys, so inactive ancestors must still resolve.
+            // Filtering deactivates geometry-free nodes, so inactive ancestors must still resolve.
             FragmentModel model = table.GetComponentInParent<FragmentModel>(true);
             if (model == null)
             {

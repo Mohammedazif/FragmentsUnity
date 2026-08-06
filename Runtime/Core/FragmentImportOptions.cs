@@ -2,7 +2,7 @@ using System;
 
 namespace FragmentsUnity
 {
-    /// <summary>Options controlling the parse stage; scene-building choices live in the Unity layer.</summary>
+    /// <summary>Options controlling the parse stage of an import.</summary>
     public sealed class FragmentImportOptions
     {
         public float ScaleFactor { get; set; } = 1.0f;

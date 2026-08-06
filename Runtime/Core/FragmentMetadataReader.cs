@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace FragmentsUnity
 {
-    /// <summary>Reads per-item identity, attribute tuples and relations from the model into FragmentImportResult.Items.</summary>
+    /// <summary>Reads per-item metadata into FragmentImportResult.Items.</summary>
     internal static class FragmentMetadataReader
     {
         internal static void BuildItemMetadata(
@@ -41,7 +41,7 @@ namespace FragmentsUnity
 
             bool ReadTuple(string tupleString)
             {
-                // Cap and budget count decoded chars, not the UTF-8 bytes of FragParser.cpp:373 — accepted divergence.
+                // The cap and budget count decoded characters, not UTF-8 bytes.
                 if (tupleString == null || tupleString.Length > FragmentImportLimits.MaxTupleBytes)
                 {
                     rejectedTuples++;
@@ -59,7 +59,7 @@ namespace FragmentsUnity
                     return false;
                 }
 
-                // UTF8_TO_TCHAR(c_str()) stops at the first NUL; mirrors FragParser.cpp:390.
+                // The tuple string ends at the first NUL byte.
                 int nulIndex = tupleString.IndexOf('\0');
                 if (nulIndex >= 0)
                 {
@@ -177,7 +177,7 @@ namespace FragmentsUnity
                 FragmentItemMetadata owner = result.Items[ownerDenseIndex];
                 Schema.Relation relationData = relationEntry.Value;
 
-                // relations_items may name one owner many times, so the cap is per item, not per entry; mirrors FragParser.cpp:507.
+                // relations_items may name one owner many times, so the cap is per item, not per entry.
                 int relationHeadroom = FragmentImportLimits.MaxItemRelations - owner.Relations.Count;
                 if (relationHeadroom <= 0)
                 {
@@ -204,7 +204,7 @@ namespace FragmentsUnity
 
                     for (int t = 1; t <= targetCount; t++)
                     {
-                        // Parse failure leaves 0, which the range check skips; mirrors FCString::Atoi64 at FragParser.cpp:533.
+                        // Parse failure leaves 0, which the range check skips.
                         long.TryParse(tokens[t], NumberStyles.Integer, CultureInfo.InvariantCulture,
                             out long targetExpressId);
                         if (targetExpressId <= 0 || targetExpressId > uint.MaxValue)

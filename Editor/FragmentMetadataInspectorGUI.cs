@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace FragmentsUnity.Editor
 {
-    /// <summary>Draws one item's IFC metadata as inspector rows; every string comes from FragmentMetadataFormatter.</summary>
+    /// <summary>Draws one item's IFC metadata as inspector rows.</summary>
     public static class FragmentMetadataInspectorGUI
     {
         private const float RowLabelWidth = 150f;
@@ -34,7 +34,6 @@ namespace FragmentsUnity.Editor
             "No IFC metadata on this element. The .frag may have been exported without properties; "
             + "otherwise re-import it with 'Import Metadata' enabled.";
 
-        /// <summary>The HelpBox shown when an element carries no IFC data at all.</summary>
         public static void DrawMissingMetadataHelp()
         {
             EditorGUILayout.HelpBox(MissingMetadataMessage, MessageType.Info);
@@ -60,7 +59,6 @@ namespace FragmentsUnity.Editor
             }
             if (!string.IsNullOrEmpty(item.ContainerName) || item.ContainerLocalId != NoLocalId)
             {
-                // An unnamed container still reads as its IFC class; mirrors FragmentsMetadataDetails.cpp:230
                 DrawRow(
                     ContainedInLabel,
                     string.IsNullOrEmpty(item.ContainerName) ? item.ContainerCategory : item.ContainerName);
@@ -75,19 +73,16 @@ namespace FragmentsUnity.Editor
             }
         }
 
-        /// <summary>Draws the attribute foldout and returns its new expanded state.</summary>
         public static bool DrawAttributes(FragmentItemMetadata item, bool expanded)
         {
             return DrawValueSection(AttributesHeading, item?.Attributes, expanded);
         }
 
-        /// <summary>Draws the classification foldout and returns its new expanded state.</summary>
         public static bool DrawClassifications(FragmentItemMetadata item, bool expanded)
         {
             return DrawValueSection(ClassificationHeading, item?.Classifications, expanded);
         }
 
-        /// <summary>Draws every property set under one foldout and returns its new expanded state.</summary>
         public static bool DrawPropertySets(FragmentItemMetadata item, bool expanded)
         {
             List<FragmentPropertySet> sets = item?.PropertySets;
@@ -123,7 +118,6 @@ namespace FragmentsUnity.Editor
             return true;
         }
 
-        /// <summary>Draws the material foldout and returns its new expanded state.</summary>
         public static bool DrawMaterials(FragmentItemMetadata item, bool expanded)
         {
             List<FragmentMaterial> materials = item?.Materials;

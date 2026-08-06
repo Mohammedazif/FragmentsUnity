@@ -48,7 +48,7 @@ namespace FragmentsUnity.Editor
                 return;
             }
 
-            // Shader.Find is unreliable during a clean import; the path dependency re-imports on shader change.
+            // Shader.Find is unreliable during a clean import.
             string shaderAssetPath = FragmentMaterialFactory.ActiveShaderAssetPath;
             ctx.DependsOnSourceAsset(shaderAssetPath);
             var vertexColorShader = AssetDatabase.LoadAssetAtPath<Shader>(shaderAssetPath);

@@ -2,10 +2,9 @@ using System;
 
 namespace FragmentsUnity
 {
-    /// <summary>Cancellable progress channel a scene build reports through; a null reporter reports nothing and never cancels.</summary>
+    /// <summary>Cancellable progress channel a scene build reports through; a null reporter never cancels.</summary>
     public sealed class FragmentImportProgress
     {
-        /// <summary>Kept coarse so a per-instance loop cannot repaint the editor progress bar once per body.</summary>
         public const int StepsBetweenReports = 256;
 
         private const float NoProgress = 0f;
@@ -27,7 +26,6 @@ namespace FragmentsUnity
 
         public bool CancellationRequested { get; private set; }
 
-        /// <summary>Names the stage, the slice of overall progress it fills, and how many steps fill that slice.</summary>
         public bool BeginStage(string stage, float spanStart, float spanEnd, int stepTotal)
         {
             _stage = stage;
@@ -39,7 +37,7 @@ namespace FragmentsUnity
             return Report(stage, _stageStart);
         }
 
-        /// <summary>Reports overall progress under a stage name and returns false once the build has been cancelled.</summary>
+        /// <summary>Returns false once the build has been cancelled.</summary>
         public bool Report(string stage, float normalizedProgress)
         {
             if (CancellationRequested)
@@ -55,7 +53,7 @@ namespace FragmentsUnity
             return !CancellationRequested;
         }
 
-        /// <summary>Advances the current stage by that many of its steps, reaching the reporter every StepsBetweenReports steps.</summary>
+        /// <summary>Reaches the reporter every StepsBetweenReports steps and once the stage completes.</summary>
         public bool ReportSteps(int steps)
         {
             if (CancellationRequested)

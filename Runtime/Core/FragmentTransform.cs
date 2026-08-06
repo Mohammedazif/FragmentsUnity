@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace FragmentsUnity
 {
-    /// <summary>A rigid transform in Unity space: double-precision position, unit-scale rotation.</summary>
+    /// <summary>A rigid transform in Unity space.</summary>
     public struct FragmentTransform
     {
         public double PositionX;
@@ -15,7 +15,7 @@ namespace FragmentsUnity
             Rotation = Quaternion.Identity
         };
 
-        /// <summary>Composes so the result applies <paramref name="first"/> then <paramref name="second"/>; mirrors UE FTransform A*B at FragParser.cpp:1898.</summary>
+        /// <summary>Composes so the result applies <paramref name="first"/> then <paramref name="second"/>.</summary>
         public static FragmentTransform Compose(in FragmentTransform first, in FragmentTransform second)
         {
             RotatePosition(second.Rotation,
